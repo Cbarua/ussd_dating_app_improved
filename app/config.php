@@ -53,7 +53,8 @@ $app_arr = array(
     'search_table' => $_ENV['SEARCH_TABLE'] ? $_ENV['SEARCH_TABLE'] : 'telco_search',
 );
 
-define("APP", $app_arr, TRUE);
+# Case insesitive constants are deprecated notice
+define("app", $app_arr);
 
 // Create connection
 $mysqli = new mysqli(app['db_url'], app['db_user'], app['db_password'], app['db_name']);

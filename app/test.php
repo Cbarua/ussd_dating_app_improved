@@ -24,7 +24,7 @@ require_once __DIR__ . "/config.php";
 $address = "tel:8801866742387";
 $content = '3';
 
-weblog($_ENV['APP_ID']);
+weblog($_ENV['APP_NAME']);
 
 ?>
 

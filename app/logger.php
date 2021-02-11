@@ -9,7 +9,9 @@ function dblog($data, $isDate = true){
     $method = 'a';
 
     // Start from new after each connection
-    $data === 'localhost via TCP/IP' ? $method = 'w': $method = 'a';
+    # Godaddy server
+    $host_info = ['localhost' => 'localhost via TCP/IP', 'godaddy' => 'Localhost via UNIX socket'];
+    in_array($data, $host_info) ? $method = 'w': $method = 'a';
 
     is_array($data) ? $data = print_r($data, true): $data;
     

@@ -107,6 +107,7 @@ $msg_arr = array(
         'complete_e' =>         "Obata username ekak nomatha. \nDial " . app['ussd']
 );
 
-define('MSG', $msg_arr, TRUE);
+# Case insesitive constants are deprecated notice
+define('msg', $msg_arr);
 
 ?>
