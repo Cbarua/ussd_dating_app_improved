@@ -4,5 +4,5 @@ vendor
 index.html
 malsaraa.sql
 help.txt
-error.log
-app/error.log
+error_log
+app/error_log
