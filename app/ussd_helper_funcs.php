@@ -96,7 +96,7 @@ function register($stage, $address, $content, $mysqli) {
                     $username = $name;
                 }
 
-                updateUserDB($mysqli, $address, ['username'=> $username, 'birthdate'=> $birthdate[0]]);
+                updateUserDB($mysqli, $address, ['username'=> $username, 'birthdate'=> $birthdate]);
                 updateStateDB($mysqli, $address, 'exit');
                 
                 $message = "Obe username wanne $username.\n" . msg['reg_fin'];
