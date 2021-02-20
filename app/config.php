@@ -19,11 +19,17 @@ $app_arr = array(
     'sub_pending' => "PENDING CHARGE",
 
     # API URLs
-    'ussd_url' => $_ENV['USSD_URL'] ? $_ENV['USSD_URL'] : 'http://127.0.0.1:7000/ussd/send',
-    'sms_url' => $_ENV['SMS_URL'] ? $_ENV['SMS_URL'] : 'http://127.0.0.1:7000/sms/send',
-    'sub_msg_url' => $_ENV['SUB_MSG_URL'] ? $_ENV['SUB_MSG_URL'] : 'http://127.0.0.1:7000/subscription/send',
-    'sub_base_url' => $_ENV['SUB_BASE_URL'] ? $_ENV['SUB_BASE_URL'] : 'http://127.0.0.1:7000/subscription/query-base',
-    'sub_status_url' => $_ENV['SUB_STATUS_URL'] ? $_ENV['SUB_STATUS_URL'] : 'http://127.0.0.1:7000/subscription/getStatus',
+    'ussd_url' => 'http://127.0.0.1:7000/ussd/send',
+    'sms_url' => 'http://127.0.0.1:7000/sms/send',
+    'sub_msg_url' => 'http://127.0.0.1:7000/subscription/send',
+    'sub_base_url' => 'http://127.0.0.1:7000/subscription/query-base',
+    'sub_status_url' => 'http://127.0.0.1:7000/subscription/getStatus',
+
+    // 'ussd_url' => $_ENV['USSD_URL'] ? $_ENV['USSD_URL'] : 'http://127.0.0.1:7000/ussd/send',
+    // 'sms_url' => $_ENV['SMS_URL'] ? $_ENV['SMS_URL'] : 'http://127.0.0.1:7000/sms/send',
+    // 'sub_msg_url' => $_ENV['SUB_MSG_URL'] ? $_ENV['SUB_MSG_URL'] : 'http://127.0.0.1:7000/subscription/send',
+    // 'sub_base_url' => $_ENV['SUB_BASE_URL'] ? $_ENV['SUB_BASE_URL'] : 'http://127.0.0.1:7000/subscription/query-base',
+    // 'sub_status_url' => $_ENV['SUB_STATUS_URL'] ? $_ENV['SUB_STATUS_URL'] : 'http://127.0.0.1:7000/subscription/getStatus',
 
     # App Configurations
     'reg_action' => '1',

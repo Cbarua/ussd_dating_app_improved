@@ -20,24 +20,24 @@ $subscription  = new Subscription(app['sub_msg_url'], app['sub_status_url'], app
 # Get USSD Request properties
 $content 			= 	$receiver->getMessage();        // get the message content
 $address 			= 	$receiver->getAddress();        // get the sender's address
-// $requestId 			= 	$receiver->getRequestID();      // get the request ID
+// $request_id 			= 	$receiver->getRequestID();      // get the request ID
 $application_id 		= 	$receiver->getapplicationId();  // get application ID
 // $encoding 			=	$receiver->getEncoding();       // get the encoding value
 // $version 			= 	$receiver->getVersion();        // get the version
 $session_id 		= 	$receiver->getSessionId();      // get the session ID
 $ussd_operation 		= 	$receiver->getUssdOperation();  // get the ussd operation
 
-// ussdlog(
-//     // '['.date('D M j G:i:s T Y').'] '."\n".
-//     "ussdOperation : $ussd_operation\n".
-//     "sourceAddress : $address\n".
-//     // "requestId     : $requestId\n".
-//     "Session_id     : $session_id\n".
-//     // "applicationId : $applicationId\n".
-//     "message       : $content\n"
-//     // "encoding      : $encoding\n".
-//     // "version       : $version\n"
-// );
+ussdlog(
+    // '['.date('D M j G:i:s T Y').'] '."\n".
+    "ussd_operation : $ussd_operation\n".
+    "source_address : $address\n".
+    // "request_id     : $request_id\n".
+    "Session_id     : $session_id\n".
+    // "application_id : $application_id\n".
+    "message       : $content\n"
+    // "encoding      : $encoding\n".
+    // "version       : $version\n"
+);
 
 # App state
 $sql = "Select * from ". app['state_table'] ." WHERE address= '$address'";
@@ -52,9 +52,9 @@ if (!isset($state['address'])) {
 
 if ($ussd_operation === "mo-init") {
 
-    $sub_status = "REGISTERED";
-    // $sub_status = $subscription->getStatus($application_id, $password, $address);
-    // ussdlog("Subscription: ".$sub_status, false);
+    // $sub_status = "REGISTERED";
+    $sub_status = $subscription->getStatus(app['app_id'], app['password'], $address);
+    ussdlog("Sub url: ".app['sub_msg_url']."\nSubscription: ".print_r($sub_status, true), false);
 
     if ($sub_status === app['sub_unreg']) {
         $message = msg['register'];

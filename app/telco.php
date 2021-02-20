@@ -544,7 +544,6 @@ class Subscription extends Core
         $this->getStatusURL = $getStatusURL;
         $this->baseURL = $baseURL;
     }
-    //**********************************************************************************************
 
     public function RegUser($applicationId, $password, $subscriberId)
     {
