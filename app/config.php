@@ -17,6 +17,7 @@ $app_arr = array(
     'sub_reg' => "REGISTERED",
     'sub_unreg' => "UNREGISTERED",
     'sub_pending' => "PENDING CHARGE",
+    'sub_not_confirmed' => "PENDING CONFIRMATION",
 
     # API URLs
     'ussd_url' => $_ENV['USSD_URL'] ? $_ENV['USSD_URL'] : 'http://127.0.0.1:7000/ussd/send',
@@ -34,7 +35,8 @@ $app_arr = array(
     'keyword' => $_ENV['KEYWORD'] ? $_ENV['KEYWORD'] : 'tel', 
     'ussd' => $_ENV['USSD'] ? $_ENV['USSD'] : '*213*99#',
     'sms' => $_ENV['SMS'] ? $_ENV['SMS'] : '21213',
-    'sms_unreg' => 'UNREG',
+    'sms_reg' => $_ENV['PLATFORM'] === 'bdapps' ? 'START' : 'REG',
+    'sms_unreg' => $_ENV['PLATFORM'] === 'mspace' ? 'DREG' : 'UNREG',
 
     # DB Configurations
     'db_url' => $_ENV['DB_URL'] ? $_ENV['DB_URL'] : 'localhost',

@@ -36,10 +36,11 @@ function addUser($mysqli, $address, $sub_status) {
 
         updateStateDB($mysqli, $address, 'name', 'Register');
         if (!isset($user['address'])) {
-            $sql = "INSERT INTO ". app['user_table'] ." (address, reg_date) VALUES ('$address', '$today');";
+            $sql = "INSERT INTO ". app['user_table'] ." (address, sub_status, reg_date) VALUES ('$address', '$sub_status', '$today');";
             executeSQL($mysqli, $sql);
+        } else {
+            updateUserDB($mysqli, $address, ['sub_status'=>$sub_status]);
         }
-        updateUserDB($mysqli, $address, ['sub_status'=>$sub_status]);
 
         $message = msg['reg_name'];
     
@@ -57,13 +58,23 @@ function register($stage, $address, $content, $mysqli) {
             // Check Name doesn't contain numbers also more than 2 and less than 11
             $is_letter = preg_match('/^[a-z]*$/i', $content);
             $is_valid_length = strlen($content) < 11 && strlen($content) > 2;
+
             if($is_letter && $is_valid_length) {
-                $name = ucfirst(strtolower($content));
+                $name = strtolower($content);
+                $is_username_exist = getSQLdata($mysqli, "Select username from ". app['user_table'] ." WHERE username= '$name'")['username'] !== null;
+
+                if ($is_username_exist) {
+                    $similar_usernames = getSQLdata($mysqli, "SELECT username from ". app['user_table'] ." WHERE username LIKE '$name%'"); // Using wildcard character '%'
+                    $username = $name . count($similar_usernames);
+                } else {
+                    $username = $name;
+                }
                 
-                updateUserDB($mysqli, $address, ['name'=> $name]);
+                $name = ucfirst($name);
+                updateUserDB($mysqli, $address, ['name'=> $name, 'username'=> $username]);
                 updateStateDB($mysqli, $address, 'sex');
 
-                $message = "Hello $name!\n" . msg['reg_sex']; 
+                $message = "Hello $name!\nUsername = $username\n" . msg['reg_sex']; 
             } else {
                 $message = msg['reg_name_e'];
             }
@@ -85,21 +96,11 @@ function register($stage, $address, $content, $mysqli) {
             $birthdate = validateDate($content);
 
             if ($birthdate) {
-                $name = strtolower(getSQLdata($mysqli, "Select name from ". app['user_table'] ." WHERE address= '$address'")['name']);
-
-                $is_username_exist = getSQLdata($mysqli, "Select username from ". app['user_table'] ." WHERE username= '$name'")['username'] !== null;
-                ussdlog(var_export($is_username_exist, true));
-                if ($is_username_exist) {
-                    $similar_usernames = getSQLdata($mysqli, "SELECT username from ". app['user_table'] ." WHERE username LIKE '$name%'"); // Using wildcard character '%'
-                    $username = $name . count($similar_usernames);
-                } else {
-                    $username = $name;
-                }
-
-                updateUserDB($mysqli, $address, ['username'=> $username, 'birthdate'=> $birthdate]);
+                updateUserDB($mysqli, $address, ['birthdate'=> $birthdate]);
                 updateStateDB($mysqli, $address, 'exit');
                 
-                $message = "Obe username wanne $username.\n" . msg['reg_fin'];
+                $message['ussd'] = msg['notify'];
+                $message['sms'] = msg['help'];
             }
             else {
                 $message = msg['reg_birthdate_e'];
@@ -108,10 +109,9 @@ function register($stage, $address, $content, $mysqli) {
             case 'exit':
                 if ($content === "0") {
                     updateStateDB($mysqli, $address, "main", "Menu");
-                    $message['ussd'] = msg['main_menu'];
-                    $message['sms'] = msg['help'];
+                    $message = msg['main_menu'];
                 } else {
-                    $message = msg['nav_e'] . msg['reg_fin'];
+                    $message = msg['nav_e'] . msg['notify'];
                 }
                 break;
         default:
@@ -149,12 +149,12 @@ function menu($stage, $address, $content, $mysqli) {
                 case '2':
                     $username = getSQLdata($mysqli, "Select username from ". app['user_table'] ." WHERE address= '$address';")['username'];
                     updateStateDB($mysqli, $address, "username",);
-                    $message = "Obe username wannne $username\n0.back";
+                    $message = "Username = $username\n0.back";
                     break;
                 case '3':
                     updateStateDB($mysqli, $address, "help");
                     $message['sms'] = msg['help'];
-                    $message['ussd'] = msg['reg_fin'];
+                    $message['ussd'] = msg['notify'];
                     break;
                 case '4':
                     $message = msg['about'];
@@ -172,7 +172,7 @@ function menu($stage, $address, $content, $mysqli) {
             $message = msg['nav_e'] . "0.back";
             break;
         case 'help':
-            $message = msg['nav_e'] . msg['reg_fin'];
+            $message = msg['nav_e'] . msg['notify'];
             break;
         case 'about':
             $message = msg['nav_e'] . msg['about'];

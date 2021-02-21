@@ -189,9 +189,9 @@ class SMSSender  extends Core
 
     private function handleResponse($jsonResponse)
     {
-
-        $statusCode = $jsonResponse->statusCode;
-        $statusDetail = $jsonResponse->statusDetail;
+        $response = json_decode($jsonResponse, true);
+        $statusCode = $response["statusCode"];
+        $statusDetail = $response["statusDetail"];
 
         if (empty($jsonResponse))
             throw new SMSServiceException('Invalid server URL', '500');
@@ -437,7 +437,6 @@ class UssdSender extends Core
 }
 
 
-
 # Ussd Exception Handler
 class UssdException extends Exception
 {
@@ -555,7 +554,19 @@ class Subscription extends Core
         );
 
         $jsonObjectFields = json_encode($arrayField);
-        return $this->sendRequest($jsonObjectFields, $this->sendURL);
+        $resp = $this->sendRequest($jsonObjectFields, $this->sendURL);
+        $response = json_decode($resp, true);
+        $statusCode = $response["statusCode"];
+        $statusDetail = $response["statusDetail"];
+
+        $is_dev = strpos($this->sendURL, "127.0.0.1") != false || strpos($this->sendURL, "localhost") != false;
+        $subscriptionStatus = $is_dev ? "REGISTERED" : $response["subscriptionStatus"];
+
+        if (strcmp($statusCode, 'S1000') == 0) {
+            return $subscriptionStatus;
+        }
+        
+        return $statusDetail;
     }
 
     public function UnregUser($applicationId, $password, $subscriberId)
@@ -610,27 +621,10 @@ class Subscription extends Core
         return $status;
     }
 
-    // Test
-    public function RegUserTest($applicationId, $password, $subscriberId)
-    {
-        $arrayField = array(
-            "applicationId" => $applicationId,
-            "password" => $password,
-            "subscriberId" => $subscriberId,
-            "action" => 1
-        );
-
-        $jsonObjectFields = json_encode($arrayField);
-        $resp = $this->sendRequest($jsonObjectFields, $this->sendURL);
-        $response = json_decode($resp, true);
-        $status = $response['subscriptionStatus'];
-        return $status;
-    }
 }
 
 
 # Location (Only for ideamart)
-
 class Location
 {
 
@@ -660,8 +654,9 @@ class Location
 }
 
 
+# Cass Exception Handler
 class CassException extends Exception
-{ //Cass Exception Handler
+{
 
     var $code;
     var $response;

@@ -2,7 +2,7 @@
 
 # Necessary libraries
 require_once __DIR__ . "/app/config.php";          
-require_once __DIR__ . "/app/msg_sl.php";
+$_ENV['PLATFORM'] === 'bdapps' ? require_once __DIR__ . "/app/msg_en.php" : require_once __DIR__ . "/app/msg_sl.php";
 require_once __DIR__ . "/app/telco.php";
 require_once __DIR__ . "/app/ussd_helper_funcs.php";
 
@@ -21,11 +21,11 @@ $subscription  = new Subscription(app['sub_msg_url'], app['sub_status_url'], app
 $content 			= 	$receiver->getMessage();        // get the message content
 $address 			= 	$receiver->getAddress();        // get the sender's address
 // $request_id 			= 	$receiver->getRequestID();      // get the request ID
-$application_id 		= 	$receiver->getapplicationId();  // get application ID
+// $application_id 		= 	$receiver->getapplicationId();  // get application ID
 // $encoding 			=	$receiver->getEncoding();       // get the encoding value
 // $version 			= 	$receiver->getVersion();        // get the version
 $session_id 		= 	$receiver->getSessionId();      // get the session ID
-$ussd_operation 		= 	$receiver->getUssdOperation();  // get the ussd operation
+$ussd_operation 	= 	$receiver->getUssdOperation();  // get the ussd operation
 
 ussdlog(
     // '['.date('D M j G:i:s T Y').'] '."\n".
@@ -46,22 +46,28 @@ $state = getSQLdata($mysqli, $sql);
 if (!isset($state['address'])) {
     $sql = "INSERT INTO ". app['state_table'] ."(address) VALUES ('$address');";
     executeSQL($mysqli, $sql);
-    $state['flow'] = "InitUSSD";
 }
 
 
 if ($ussd_operation === "mo-init") {
-
-    // $sub_status = "REGISTERED";
-    $sub_status = $subscription->getStatus(app['app_id'], app['password'], $address);
-    ussdlog("Sub url: ".app['sub_msg_url']."\nSubscription: ".print_r($sub_status, true), false);
+    # User subscription status
+    # mspace ussd and sms subscription required update
+    $sub_status = $_ENV['PLATFORM'] === 'mspace' ? app['sub_reg'] : $subscription->getStatus(app['app_id'], app['password'], $address);
+    ussdlog("Platform: ".$_ENV['PLATFORM']."\nSub url: ".app['sub_msg_url']."\nSubscription: ".print_r($sub_status, true), false);
 
     if ($sub_status === app['sub_unreg']) {
         $message = msg['register'];
+        updateStateDB($mysqli, $address, "", "InitUSSD");
     } elseif ($sub_status === app['sub_reg']) {
         $message = addUser($mysqli, $address, $sub_status);
+    } elseif ($sub_status === app['sub_pending']) {
+        $message = msg['pending_e'];
+    } 
+    # bdapps subscription confirmation required update
+    elseif ($sub_status === app['sub_not_confirmed']) {
+        $message = msg['not_confirmed_e'];
     } else {
-        $message = "App error: ". __LINE__;
+        $message = "App error! Line: ". __LINE__;
     }
     
 } else {
@@ -69,17 +75,20 @@ if ($ussd_operation === "mo-init") {
     switch ($state['flow']) {
         case 'InitUSSD':
             if ($content === "0") {
-                $ussd_sender->ussd($session_id, msg['exit'], $address, 'mt-fin');
+                $message = msg['exit'];
             } elseif ($content === "1") {
-                $sub_status = "REGISTERED";
-
-                if ($state['address']) {
-                    updateStateDB($mysqli, $address, 'main', 'Menu');
+                $sub_status = $subscription->RegUser(app['app_id'], app['password'], $address);
+                
+                if (in_array($sub_status, [app['sub_reg'], app['sub_pending']])) {
+                    $message = addUser($mysqli, $address, $sub_status);
+                } 
+                # bdapps subscription confirmation required update
+                elseif ($sub_status === app['sub_not_confirmed']) {
+                    $message = msg['pending_confirm'];
                 } else {
-                    $sql = "INSERT INTO ". app['state_table'] ." VALUES ('$address', 'Register', 'name');";
-                    executeSQL($mysqli, $sql);
+                    $message = "App error! Line: ". __LINE__;
                 }
-                $message = addUser($mysqli, $address, $sub_status);
+
             } else {
                 $message = msg['nav_e'] . msg['register'];
             }
@@ -100,11 +109,13 @@ if ($ussd_operation === "mo-init") {
 }
 
 try {
-    if ($message === msg['exit']) {
+    $fin_list = [msg['exit'], msg['pending_e'], msg['not_confirmed_e'], msg['pending_confirm']];
+
+    if (in_array($message, $fin_list)) {
         $ussd_sender->ussd($session_id, $message, $address, 'mt-fin');
-    }
-    
-    if (is_array($message)) {
+    } elseif (strpos($data, "App error! Line: ") !== false) {
+        $ussd_sender->ussd($session_id, $message, $address, 'mt-fin');
+    } else if (is_array($message)) {
         $ussd_sender->ussd($session_id, $message['ussd'], $address);
         $sms_sender->sms($message['sms'], $address);
     } else {
