@@ -39,7 +39,13 @@ $msg_arr = array(
                         "\nNow you can find your love with ease.".
                         "\nPlease enter your name.",
 
+        'reg_name_int' =>       "Welcome to ". app['app_name'] . " USSD Application." . 
+                                "\nNow you can find your love with ease.".
+                                "\nPlease enter your name or a number.",
+
         'reg_name_e' => "Your name is not valid. Please enter your correct name.\nExample: $example_names[0], $example_names[1], $example_names[2]",
+
+        'reg_name_int_e' => "Input Error!\nPlease enter your name or a number.",
 
         'reg_sex' =>    "Are you\n" .
                         "1. Male\n" .

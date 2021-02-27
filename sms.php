@@ -36,8 +36,6 @@ smslog(
 # User subscription status
 # mspace ussd and sms subscription required update
 $sub_status = $_ENV['PLATFORM'] === 'mspace' ? app['sub_reg'] : $subscription->getStatus(app['app_id'], app['password'], $address);
-$sub_status = app['sub_not_confirmed'];
-
 
 try {
     if ($sub_status === app['sub_reg']) {
@@ -45,7 +43,7 @@ try {
         $username = $parts[1];
         $content = $parts[2];
         $message = msg['help'];
-        
+        smslog($parts);
         if ($parts[0] === app['keyword']) {
     
             if(isset($username, $content)) {

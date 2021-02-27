@@ -32,9 +32,9 @@ ussdlog(
     "ussd_operation : $ussd_operation\n".
     "source_address : $address\n".
     // "request_id     : $request_id\n".
-    "Session_id     : $session_id\n".
+    "session_id     : $session_id\n".
     // "application_id : $application_id\n".
-    "message       : $content\n"
+    "message        : $content\n"
     // "encoding      : $encoding\n".
     // "version       : $version\n"
 );
@@ -66,7 +66,13 @@ if ($ussd_operation === "mo-init") {
     # bdapps subscription confirmation required update
     elseif ($sub_status === app['sub_not_confirmed']) {
         $message = msg['not_confirmed_e'];
-    } else {
+    }
+    # ideamart INITIAL CHARGING PENDING
+    elseif (strpos($sub_status, "PENDING") !== false) {
+        $message = msg['register'];
+        updateStateDB($mysqli, $address, "", "InitUSSD");
+    } 
+    else {
         $message = "App error! Line: ". __LINE__;
     }
     
@@ -77,18 +83,23 @@ if ($ussd_operation === "mo-init") {
             if ($content === "0") {
                 $message = msg['exit'];
             } elseif ($content === "1") {
-                $sub_status = $subscription->RegUser(app['app_id'], app['password'], $address);
-                
-                if (in_array($sub_status, [app['sub_reg'], app['sub_pending']])) {
-                    $message = addUser($mysqli, $address, $sub_status);
-                } 
-                # bdapps subscription confirmation required update
-                elseif ($sub_status === app['sub_not_confirmed']) {
-                    $message = msg['pending_confirm'];
+                $response = $subscription->RegUser(app['app_id'], app['password'], $address);
+
+                if (isset($response['subscriptionStatus']) || $response['statusCode'] === 'S1000') {
+                    $sub_status = $response['subscriptionStatus'];
+
+                    ussdlog("Sub Status: ".$sub_status);
+
+                    # bdapps subscription confirmation required update
+                    if ($sub_status === app['sub_not_confirmed']) {
+                        $message = msg['pending_confirm'];
+                    } else {
+                        $message = addUser($mysqli, $address, $sub_status);
+                    }
                 } else {
+                    ussdlog("Reg User Response\n".var_export($response, true));
                     $message = "App error! Line: ". __LINE__;
                 }
-
             } else {
                 $message = msg['nav_e'] . msg['register'];
             }
@@ -108,18 +119,23 @@ if ($ussd_operation === "mo-init") {
     }
 }
 
-try {
-    $fin_list = [msg['exit'], msg['pending_e'], msg['not_confirmed_e'], msg['pending_confirm']];
+ussdlog("Message\n".print_r($message, true));
 
-    if (in_array($message, $fin_list)) {
-        $ussd_sender->ussd($session_id, $message, $address, 'mt-fin');
-    } elseif (strpos($data, "App error! Line: ") !== false) {
-        $ussd_sender->ussd($session_id, $message, $address, 'mt-fin');
-    } else if (is_array($message)) {
+try {
+    # strpos returns NULL if an array is given. strpos($message, "App error!") !== false = true
+    if (is_array($message)) {
         $ussd_sender->ussd($session_id, $message['ussd'], $address);
         $sms_sender->sms($message['sms'], $address);
     } else {
-        $ussd_sender->ussd($session_id, $message, $address);
+        $fin_list = [msg['exit'], msg['pending_e'], msg['not_confirmed_e'], msg['pending_confirm']];
+
+        if (in_array($message, $fin_list)) {
+            $ussd_sender->ussd($session_id, $message, $address, 'mt-fin');
+        } elseif (strpos($message, "App error!") !== false) {
+            $ussd_sender->ussd($session_id, $message, $address, 'mt-fin');
+        } else {
+            $ussd_sender->ussd($session_id, $message, $address);
+        }
     }
 } catch (UssdException $e) {
     ussdlog("USSD Error: {$e->getStatusCode()} | {$e->getStatusMessage()}");

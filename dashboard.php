@@ -1,6 +1,22 @@
 <?php
 
 require_once __DIR__ . "/app/config.php";
+require_once __DIR__ . "/app/telco.php";
+
+$subscription  = new Subscription(app['sub_msg_url'], app['sub_status_url'], app['sub_base_url']);
+$base_size = $subscription->getBaseSize(app['app_id'], app['password']);
+
+$today = date("Y-m-d");
+
+$total_users = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'])['total'];
+$female = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sex = 'female'")['total'];
+$male = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sex = 'male'")['total'];
+$reg_users = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status = '".app['sub_reg']."'")['total'];
+$unreg_users = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status = '".app['sub_unreg']."'")['total'];
+$pending_users = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status LIKE '%PENDING%'")['total'];
+$today_reg = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status = '".app['sub_reg']."' AND reg_date = '$today'")['total'];
+$today_unreg = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status = '".app['sub_unreg']."' AND reg_date = '$today'")['total'];
+$today_pending = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status LIKE '%PENDING%' AND reg_date = '$today'")['total'];
 
 ?>
 
@@ -107,11 +123,12 @@ require_once __DIR__ . "/app/config.php";
     <tr>
         <th>Application Name</th>
         <th>Date</th>
+        <th>Base Size</th>
         <th>Total Users</th>
         <th>Female</th>
         <th>Boys</th>
-        <th>Subscribed Users</th>
-        <th>Unsubscribed Users</th>
+        <th>Registered Users</th>
+        <th>Unregistered Users</th>
         <th>Pending Users</th>
         <th>Today Reg Users</th>
         <th>Today Unreg Users</th>
@@ -121,16 +138,17 @@ require_once __DIR__ . "/app/config.php";
     <tbody>
         <tr>
         <td data-label="Application Name"><?php echo app['app_name']; ?></td>
-        <td data-label="Date"><?php echo date("Y-m-d"); ?></td>
-        <td data-label="Total Users"><?php echo 0; ?></td>
-        <td data-label="Female"><?php echo 0; ?></td>
-        <td data-label="Male"><?php echo 0; ?></td>
-        <td data-label="Subscribed Users"><?php echo 0; ?></td>
-        <td data-label="Unsubscribed Users"><?php echo 0; ?></td>
-        <td data-label="Pending Users"><?php echo 0; ?></td>
-        <td data-label="Today Reg Users"><?php echo 0; ?></td>
-        <td data-label="Today Unreg Users"><?php echo 0; ?></td>
-        <td data-label="Today Pending Users"><?php echo 0; ?></td>
+        <td data-label="Date"><?php echo $today; ?></td>
+        <td data-label="Base Size"><?php echo $base_size; ?></td>
+        <td data-label="Total Users"><?php echo $total_users; ?></td>
+        <td data-label="Female"><?php echo $female; ?></td>
+        <td data-label="Male"><?php echo $male; ?></td>
+        <td data-label="Registered Users"><?php echo $reg_users; ?></td>
+        <td data-label="Unregistered Users"><?php echo $unreg_users; ?></td>
+        <td data-label="Pending Users"><?php echo $pending_users; ?></td>
+        <td data-label="Today Reg Users"><?php echo $today_reg; ?></td>
+        <td data-label="Today Unreg Users"><?php echo $today_unreg; ?></td>
+        <td data-label="Today Pending Users"><?php echo $today_pending; ?></td>
     </tr>
     </tbody>
     </table>

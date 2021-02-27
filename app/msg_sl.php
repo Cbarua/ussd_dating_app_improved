@@ -7,7 +7,7 @@ $msg_arr = array(
                         "\n0.Exit",
 
         'exit' =>       app['app_name'] . 
-                        " USSD Chat   Sewawa Bavitha Kala Obata Isthuthi. ". 
+                        " USSD Chat Sewawa Bavitha Kala Obata Isthuthi. ". 
                         app['app_name'] . " Wetha Nawathath Paminenna.",
 
         'main_menu' =>  "1.Obata Galapena Kenaa Dan Soyaganna." . 
@@ -35,7 +35,13 @@ $msg_arr = array(
                         "\nObata Galapenama Kenaa Dan Lesiyenma Soyaganna Puluwan.
                         \nObe Nama Sadahan Karanna.",
 
+        'reg_name_int' =>       "Welcome to ". app['app_name'] . " USSD Application." . 
+                                "\nObata Galapenama Kenaa Dan Lesiyenma Soyaganna Puluwan.
+                                \nObe Nama Ho Ankayak Sadahan Karanna.",
+
         'reg_name_e' => "Oba Nama Weradiya. Karunakara Niweredi Nama Athulath Karanna.\nUdaharana: Dinuka, Sameera, Nuwan",
+
+        'reg_name_int_e' => "Input Error!\nObe Nama Ho Ankayak Sadahan Karanna.",
 
         'reg_sex' =>    "Oba" . 
                         "\n1.Male(Pirimiyek)" . 

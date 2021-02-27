@@ -556,17 +556,17 @@ class Subscription extends Core
         $jsonObjectFields = json_encode($arrayField);
         $resp = $this->sendRequest($jsonObjectFields, $this->sendURL);
         $response = json_decode($resp, true);
-        $statusCode = $response["statusCode"];
-        $statusDetail = $response["statusDetail"];
+        // $statusCode = $response["statusCode"];
+        // $statusDetail = $response["statusDetail"];
 
-        $is_dev = strpos($this->sendURL, "127.0.0.1") != false || strpos($this->sendURL, "localhost") != false;
-        $subscriptionStatus = $is_dev ? "REGISTERED" : $response["subscriptionStatus"];
+        // $is_dev = strpos($this->sendURL, "127.0.0.1") !== false || strpos($this->sendURL, "localhost") !== false;
+        // $subscriptionStatus = $is_dev ? "REGISTERED" : $response["subscriptionStatus"];
 
-        if (strcmp($statusCode, 'S1000') == 0) {
-            return $subscriptionStatus;
-        }
-        
-        return $statusDetail;
+        // if (strcmp($statusCode, 'S1000') == 0) {
+        //     return $subscriptionStatus;
+        // }
+        // return $statusDetail;
+        return $response;
     }
 
     public function UnregUser($applicationId, $password, $subscriberId)

@@ -30,9 +30,19 @@ function addUser($mysqli, $address, $sub_status) {
 
     $sql = "Select * from ". app['user_table'] ." WHERE address= '$address';";
     $user = getSQLdata($mysqli, $sql);
+    $today = date("Y-m-d");
+
+    # If the user has a complete profile but sub_status is different from current
+    if (isset($user['sub_status']) && $user['sub_status'] !== $sub_status) {
+        $user_db = ['sub_status'=>$sub_status];
+        # If the user re-registered
+        if ($user['sub_status'] === app['sub_unreg']) {
+            $user_db['reg_date'] = $today;
+        }
+        updateUserDB($mysqli, $address, $user_db);
+    }
 
     if (!validateDate($user['birthdate'])) {
-        $today = date("Y-m-d");
 
         updateStateDB($mysqli, $address, 'name', 'Register');
         if (!isset($user['address'])) {
@@ -42,7 +52,8 @@ function addUser($mysqli, $address, $sub_status) {
             updateUserDB($mysqli, $address, ['sub_status'=>$sub_status]);
         }
 
-        $message = msg['reg_name'];
+        // $message = msg['reg_name'];
+        $message = msg['reg_name_int'];
     
     } else {
         $message = msg['main_menu'];
@@ -56,10 +67,17 @@ function register($stage, $address, $content, $mysqli) {
     switch ($stage) {
         case 'name':
             // Check Name doesn't contain numbers also more than 2 and less than 11
-            $is_letter = preg_match('/^[a-z]*$/i', $content);
-            $is_valid_length = strlen($content) < 11 && strlen($content) > 2;
+            // $is_letter = preg_match('/^[a-z]*$/i', $content);
+            // $is_valid_length = strlen($content) < 11 && strlen($content) > 2;
 
-            if($is_letter && $is_valid_length) {
+            # Huawei phone USSD num keyboard issue.
+            $regex_name = "/^[a-z]{3,10}$/i";
+            $regex_num = "/^\d{1,10}$/";
+            $content = trim($content);
+
+            $is_valid = preg_match($regex_name, $content) === 1 || preg_match($regex_num, $content) === 1;
+
+            if($is_valid) {
                 $name = strtolower($content);
                 $is_username_exist = getSQLdata($mysqli, "Select username from ". app['user_table'] ." WHERE username= '$name'")['username'] !== null;
 
@@ -76,7 +94,8 @@ function register($stage, $address, $content, $mysqli) {
 
                 $message = "Hello $name!\nUsername = $username\n" . msg['reg_sex']; 
             } else {
-                $message = msg['reg_name_e'];
+                // $message = msg['reg_name_e'];
+                $message = msg['reg_name_int_e'];
             }
             break;
         case 'sex':
@@ -106,14 +125,14 @@ function register($stage, $address, $content, $mysqli) {
                 $message = msg['reg_birthdate_e'];
             }
             break;
-            case 'exit':
-                if ($content === "0") {
-                    updateStateDB($mysqli, $address, "main", "Menu");
-                    $message = msg['main_menu'];
-                } else {
-                    $message = msg['nav_e'] . msg['notify'];
-                }
-                break;
+        case 'exit':
+            if ($content === "0") {
+                updateStateDB($mysqli, $address, "main", "Menu");
+                $message = msg['main_menu'];
+            } else {
+                $message = msg['nav_e'] . msg['notify'];
+            }
+            break;
         default:
             $message = "App error! Line: ". __LINE__;
             break;
