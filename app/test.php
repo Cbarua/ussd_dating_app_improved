@@ -32,16 +32,6 @@ require_once __DIR__ . "/telco.php";
 
 weblog($_ENV['APP_NAME']);
 
-// $address = "tel:A#3B44oIza4nXQPhpIHE+g5wN7qC8t4j/uM5dTNAl2HbGqdCKP1nWafntUrvxzK1KpLNy";
-$subscription  = new Subscription(app['sub_msg_url'], app['sub_status_url'], app['sub_base_url']);
-// $sub_status = $subscription->getStatus(app['app_id'], app['password'], $address);
-// $base_size = $subscription->getBaseSize(app['app_id'], app['password']);
-// weblog($sub_status);
-// weblog($base_size);
-
-
-// weblog(var_dump(strtolower("12")));
-
 function updateSub($mysqli, $subscription) {
     $addresses = getSQLdata($mysqli, "SELECT address FROM ".app['state_table']);
 
@@ -61,36 +51,6 @@ function updateSub($mysqli, $subscription) {
         }
     }
 }
-
-// $today = date("Y-m-d");
-
-// $sql = "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sex = 'male';";
-// $sql .= "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sex = 'female';";
-// $sql .= "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status = '".app['sub_reg']."';";
-// $sql .= "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status = '".app['sub_unreg']."';";
-// $sql .= "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status LIKE '%PENDING%';";
-// $sql .= "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status = sub_status = '".app['sub_reg']."' AND reg_date = '$today';";
-// $sql .= "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status = sub_status = '".app['sub_unreg']."' AND reg_date = '$today';";
-// $sql .= "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status LIKE '%PENDING%' AND reg_date = '$today';";
-
-// if ($mysqli->multi_query($sql)) {
-//     do {
-//         /* store first result set */
-//         if ($result = $mysqli->store_result()) {
-//             // weblog(var_dump($result));
-//             while ($row = $result->fetch_row()) {
-//                 weblog($row);
-//             }
-//             $result->free();
-//         }
-//         /* print divider */
-//         if ($mysqli->more_results()) {
-//             weblog("-----------------\n");
-//         }
-//     } while ($mysqli->next_result());
-// }
-
-// weblog(var_export($app_arr, true));
 
 ?>
 

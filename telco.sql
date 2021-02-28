@@ -46,7 +46,7 @@ CREATE TABLE `telco_users` (
   `birthdate` date,
   `sex` char(6),
   `sub_status` varchar(30),
-  `reg_date` date,
+  `sub_date` date,
   PRIMARY KEY (`address`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

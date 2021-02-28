@@ -30,26 +30,21 @@ function addUser($mysqli, $address, $sub_status) {
 
     $sql = "Select * from ". app['user_table'] ." WHERE address= '$address';";
     $user = getSQLdata($mysqli, $sql);
-    $today = date("Y-m-d");
+    $date = date("Y-m-d");
 
     # If the user has a complete profile but sub_status is different from current
     if (isset($user['sub_status']) && $user['sub_status'] !== $sub_status) {
-        $user_db = ['sub_status'=>$sub_status];
-        # If the user re-registered
-        if ($user['sub_status'] === app['sub_unreg']) {
-            $user_db['reg_date'] = $today;
-        }
-        updateUserDB($mysqli, $address, $user_db);
+        updateUserDB($mysqli, $address, ['sub_status' => $sub_status, 'sub_date' => $date]);
     }
 
     if (!validateDate($user['birthdate'])) {
 
         updateStateDB($mysqli, $address, 'name', 'Register');
-        if (!isset($user['address'])) {
-            $sql = "INSERT INTO ". app['user_table'] ." (address, sub_status, reg_date) VALUES ('$address', '$sub_status', '$today');";
-            executeSQL($mysqli, $sql);
+        if (isset($user['address'])) {
+            updateUserDB($mysqli, $address, ['sub_status' => $sub_status]);
         } else {
-            updateUserDB($mysqli, $address, ['sub_status'=>$sub_status]);
+            $sql = "INSERT INTO ". app['user_table'] ." (address, sub_status, sub_date) VALUES ('$address', '$sub_status', '$date');";
+            executeSQL($mysqli, $sql);
         }
 
         // $message = msg['reg_name'];
