@@ -33,7 +33,7 @@ if ($dashboard['reg'] !== $today_reg) {
     $update_dashboard['reg'] = $today_reg;
 }
 if ($dashboard['unreg'] !== $today_unreg) {
-    $update_dashboard['unreg'] = $today_reg;
+    $update_dashboard['unreg'] = $today_unreg;
 }
 if ($dashboard['pending'] !== $today_pending) {
     $update_dashboard['pending'] = $today_pending;
