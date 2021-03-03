@@ -53,7 +53,7 @@ if ($ussd_operation === "mo-init") {
     # User subscription status
     # mspace ussd and sms subscription required update
     $sub_status = $_ENV['PLATFORM'] === 'mspace' ? app['sub_reg'] : $subscription->getStatus(app['app_id'], app['password'], $address);
-    ussdlog("Platform: ".$_ENV['PLATFORM']."\nSub url: ".app['sub_msg_url']."\nSubscription: ".var_export($sub_status, true), false);
+    ussdlog("Platform: ".$_ENV['PLATFORM']."\nSub url: ".app['sub_msg_url']."\nSubscription: ".var_dump_ret($sub_status), false);
 
     if ($sub_status === app['sub_unreg']) {
         $message = msg['register'];
@@ -97,7 +97,7 @@ if ($ussd_operation === "mo-init") {
                         $message = addUser($mysqli, $address, $sub_status);
                     }
                 } else {
-                    ussdlog("Reg User Response\n".var_export($response, true));
+                    ussdlog("Reg User Response\n".var_dump_ret($response));
                     $message = "App error! Line: ". __LINE__;
                 }
             } else {
@@ -119,7 +119,7 @@ if ($ussd_operation === "mo-init") {
     }
 }
 
-ussdlog("Message\n".var_export($message, true));
+ussdlog("Message\n".var_dump_ret($message));
 
 try {
     # strpos returns NULL if an array is given. strpos($message, "App error!") !== false = true

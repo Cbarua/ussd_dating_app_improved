@@ -10,7 +10,7 @@ if (isset(
     $jsonRequest['subscriberId'],
     $jsonRequest['timeStamp']
 )) {
-    ussdlog("Sub_notify\n".print_r($jsonRequest, true));
+    ussdlog("Sub_notify\n".var_dump_ret($jsonRequest));
 
     if($jsonRequest['applicationId'] === app['app_id']) {
         $regex_api_timestamp = "/(?<year>^\d{4})(?<month>\d{2})(?<day>\d{2})/";
@@ -22,6 +22,11 @@ if (isset(
 
         $sql = "Select address from ". app['user_table'] ." WHERE address= '$address';";
         $user = getSQLdata($mysqli, $sql);
+
+        # bdapps masked number change update
+        if ($_ENV['PLATFORM'] === 'bdapps' && $sub_status === app['sub_unreg']) {
+            updateUserDB($mysqli, $address, ['name' => '', 'username' => '', 'birthdate' => '']);
+        }
 
         if (isset($user['address'])) {
             updateUserDB($mysqli, $address, ['sub_status' => $sub_status, 'sub_date' => $date]);

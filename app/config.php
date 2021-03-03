@@ -87,13 +87,13 @@ function getSQLdata($mysqli, $sql) {
             while($row = $result->fetch_assoc()) {
                 $rows[] = $row;
             }
-            dblog("Success: ".$sql."\n".print_r($rows, true));
+            dblog("Success: ".$sql."\n".var_dump_ret($rows));
             $result->close();
             return $rows;
         } else {
             $row = $result->fetch_assoc();
             $result->close();
-            dblog("Success: ".$sql."\n".print_r($row, true));
+            dblog("Success: ".$sql."\n".var_dump_ret($row));
             return $row;
         }
         
@@ -141,7 +141,21 @@ function updateStateDB($mysqli, $address, $stage, $flow = false) {
 
     $sql .= " WHERE address= '$address';";
     
-    $sql = substr_replace($sql, '', strrpos($sql, ','), 0);
+    // $sql = substr_replace($sql, '', strrpos($sql, ','), 0);
+    executeSQL($mysqli, $sql);
+}
+
+function updateDashDB($mysqli, $date, $data) {
+
+    $sql = "UPDATE ". app['dash_table'] ." SET ";
+
+    foreach ($data as $key => $value) {
+        $sql .= "$key = '$value', ";
+    }
+
+    $sql .= "WHERE date= '$date';";
+    
+    $sql = substr_replace($sql, '', strrpos($sql, ','), 1);
     executeSQL($mysqli, $sql);
 }
 

@@ -7,7 +7,7 @@ $example_names = $_ENV['PLATFORM'] === 'bdapps' ? array('radhika', 'chinmoy', 'o
 # English Message Constants
 $msg_arr = array(
         'register' =>   "Welcome to ". app['app_name'] .
-                        "Register to find your love" .
+                        "\nRegister to find your love" .
                         "\n1.Register".
                         "\n0.Exit",
 

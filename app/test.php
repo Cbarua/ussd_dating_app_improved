@@ -25,7 +25,8 @@ require_once __DIR__ . "/logger.php";
 require_once __DIR__ . "/config.php";
 require_once __DIR__ . "/telco.php";
 // require_once __DIR__ . "/msg_sl.php";
-// require_once __DIR__ . "/vendor/autoload.php";
+// require_once __DIR__ . "/fake.php";
+// require_once dirname(__DIR__) . "/vendor/autoload.php";
 
 // $address = "tel:8801866742387";
 // $content = '3';
@@ -51,6 +52,15 @@ function updateSub($mysqli, $subscription) {
         }
     }
 }
+
+// $sender = new SMSSender(app['sms_url'], app['app_id'], app['password']);
+// $message = "Kellek ho kollek oba kamathi kenek hoyaganna danma " . app['ussd'] . " dial karanna.";
+
+// try {
+//     $sender->broadcast($message);
+// } catch (SMSServiceException $e) {
+//     smslog($receiver->getAddress() . "\nSMS ERROR: {$e->getErrorCode()} | {$e->getErrorMessage()}"); 
+// }
 
 ?>
 

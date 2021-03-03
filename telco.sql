@@ -19,14 +19,14 @@ SET time_zone = "+00:00";
 --
 -- Database: `telco`
 --
-
+CREATE DATABASE IF NOT EXISTS telco;
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `telco_state`
 --
 
-CREATE TABLE `telco_state` (
+CREATE TABLE IF NOT EXISTS `telco_state` (
   `address` varchar(100) NOT NULL,
   `flow` varchar(30),
   `stage` varchar(30),
@@ -39,7 +39,7 @@ CREATE TABLE `telco_state` (
 -- Table structure for table `telco_users`
 --
 
-CREATE TABLE `telco_users` (
+CREATE TABLE IF NOT EXISTS `telco_users` (
   `address` varchar(100) NOT NULL,
   `name` varchar(30),
   `username` varchar(30) UNIQUE,
@@ -56,7 +56,7 @@ CREATE TABLE `telco_users` (
 -- Table structure for table `telco_search`
 --
 
-CREATE TABLE `telco_search` (
+CREATE TABLE IF NOT EXISTS `telco_search` (
   `address` varchar(100) NOT NULL,
   `sex` varchar(6),
   `age_range` char(5),
@@ -73,11 +73,14 @@ CREATE TABLE `telco_search` (
 -- Table structure for table `telco_dashboard`
 --
 
-CREATE TABLE `telco_dashboard` (
+CREATE TABLE IF NOT EXISTS `telco_dashboard` (
   `date` date NOT NULL,
   `reg` int,
   `unreg` int,
   `pending` int,
+  `total_reg` int,
+  `total_unreg` int,
+  `total_pending` int,
   PRIMARY KEY (`date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
