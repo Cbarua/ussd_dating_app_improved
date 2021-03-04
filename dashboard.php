@@ -22,10 +22,10 @@ if (!isset($dashboard['date'])) {
 // $male = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sex = 'male'")['total'];
 $total_reg = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status = '".app['sub_reg']."'")['total'];
 $total_unreg = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status = '".app['sub_unreg']."'")['total'];
-$total_pending = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status LIKE '%PENDING%' AND NOT sub_status = '".app['sub_not_confirmed']."'")['total'];
+$total_pending = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status LIKE '%PENDING%' OR sub_status = 'TEMPORARY BLOCKED' AND NOT sub_status = '".app['sub_not_confirmed']."'")['total'];
 $today_reg = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status = '".app['sub_reg']."' AND sub_date = '$today'")['total'];
 $today_unreg = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status = '".app['sub_unreg']."' AND sub_date = '$today'")['total'];
-$today_pending = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status LIKE '%PENDING%' AND sub_date = '$today' AND NOT sub_status = '".app['sub_not_confirmed']."'")['total'];
+$today_pending = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status LIKE '%PENDING%' OR sub_status = 'TEMPORARY BLOCKED' AND sub_date = '$today' AND NOT sub_status = '".app['sub_not_confirmed']."'")['total'];
 
 $update_dashboard = [];
 

@@ -16,10 +16,10 @@
 <body>
 
 <?php
-# AWS Lightsail/EC2 Bitnami PHP Server
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+# Not suitable for production. Edit php.ini and set error_log = error_log
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
 
 require_once __DIR__ . "/logger.php";
 require_once __DIR__ . "/config.php";
@@ -32,26 +32,6 @@ require_once __DIR__ . "/telco.php";
 // $content = '3';
 
 weblog($_ENV['APP_NAME']);
-
-function updateSub($mysqli, $subscription) {
-    $addresses = getSQLdata($mysqli, "SELECT address FROM ".app['state_table']);
-
-    foreach ($addresses as $key => $value) {
-        $address = $value['address'];
-        $date = date("Y-m-d");
-        $sub_status = $subscription->getStatus(app['app_id'], app['password'], $address);
-
-        $sql = "Select address from ". app['user_table'] ." WHERE address= '$address';";
-        $user = getSQLdata($mysqli, $sql);
-
-        if (!isset($user['address'])) {
-            $sql = "INSERT INTO ". app['user_table'] ." (address, sub_status, reg_date) VALUES ('$address', '$sub_status', '$date');";
-            executeSQL($mysqli, $sql);
-        } else {
-            updateUserDB($mysqli, $address, ['sub_status'=>$sub_status]);
-        }
-    }
-}
 
 // $sender = new SMSSender(app['sms_url'], app['app_id'], app['password']);
 // $message = "Kellek ho kollek oba kamathi kenek hoyaganna danma " . app['ussd'] . " dial karanna.";

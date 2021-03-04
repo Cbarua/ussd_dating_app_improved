@@ -35,7 +35,7 @@ smslog(
 
 # User subscription status
 # mspace ussd and sms subscription required update
-$sub_status = $_ENV['PLATFORM'] === 'mspace' ? app['sub_reg'] : $subscription->getStatus(app['app_id'], app['password'], $address);
+$sub_status = $_ENV['PLATFORM'] === 'mspace' ? app['sub_reg'] : $subscription->getStatus(app['app_id'], app['password'], $address)['subscriptionStatus'];
 smslog("Platform: ".$_ENV['PLATFORM']."\nSub url: ".app['sub_msg_url']."\nSubscription: ".print_r($sub_status, true), false);
 
 $user_sql = "Select username, sub_status from ". app['user_table'] ." WHERE address= '$address'";

@@ -52,7 +52,7 @@ if (!isset($state['address'])) {
 if ($ussd_operation === "mo-init") {
     # User subscription status
     # mspace ussd and sms subscription required update
-    $sub_status = $_ENV['PLATFORM'] === 'mspace' ? app['sub_reg'] : $subscription->getStatus(app['app_id'], app['password'], $address);
+    $sub_status = $_ENV['PLATFORM'] === 'mspace' ? app['sub_reg'] : $subscription->getStatus(app['app_id'], app['password'], $address)['subscriptionStatus'];
     ussdlog("Platform: ".$_ENV['PLATFORM']."\nSub url: ".app['sub_msg_url']."\nSubscription: ".var_dump_ret($sub_status), false);
 
     if ($sub_status === app['sub_unreg']) {

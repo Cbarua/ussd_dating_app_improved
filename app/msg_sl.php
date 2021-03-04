@@ -95,7 +95,12 @@ $msg_arr = array(
                                 "Karunakara Pasuwa Uthsaha Karanna.",
 
         'subscribe_first' =>    "Karunakara register wenna.\n".
-                                app['sms_reg'] ."  ". app['keyword'] ." ". app['sms']. " ta ewanna."
+                                app['sms_reg'] ."  ". app['keyword'] ." ". app['sms']. " ta ewanna.",
+        
+        # Apache server error_log notices issue
+        'not_confirmed_e' =>    "",
+        
+        'pending_confirm' =>    ""
 );
 
 # Case insesitive constants are deprecated notice

@@ -65,3 +65,18 @@ function weblog($data) {
     $data = nl2br($data);
     echo $data."<br><br>";
 }
+
+function dashlog($data, $isDate = true){
+    # dirname(__DIR__) returns parent directory of current directory
+    $logfile = dirname(__DIR__) . '/log/dash.log';
+    $date = $isDate ? "[".date('D M j G:i:s T Y')."]\n" : "";
+    $method = 'a';
+
+    $data = var_dump_ret($data);
+
+    strpos($data, 'Dashboard Update') !== false ? $method = 'w': $method = 'a';
+    
+    $file = fopen($logfile, $method);
+    fwrite($file, $date . $data . "\n\n");
+    fclose($file);
+}
