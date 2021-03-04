@@ -58,22 +58,13 @@ if ($ussd_operation === "mo-init") {
     if ($sub_status === app['sub_unreg']) {
         $message = msg['register'];
         updateStateDB($mysqli, $address, "", "InitUSSD");
-    } elseif ($sub_status === app['sub_reg']) {
-        $message = addUser($mysqli, $address, $sub_status);
-    } elseif ($sub_status === app['sub_pending']) {
-        $message = msg['pending_e'];
     } 
     # bdapps subscription confirmation required update
     elseif ($sub_status === app['sub_not_confirmed']) {
         $message = msg['not_confirmed_e'];
     }
-    # ideamart INITIAL CHARGING PENDING
-    elseif (strpos($sub_status, "PENDING") !== false) {
-        $message = msg['register'];
-        updateStateDB($mysqli, $address, "", "InitUSSD");
-    } 
     else {
-        $message = "App error! Line: ". __LINE__;
+        $message = addUser($mysqli, $address, $sub_status);
     }
     
 } else {
