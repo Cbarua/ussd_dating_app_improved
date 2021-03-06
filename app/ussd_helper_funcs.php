@@ -2,7 +2,9 @@
 
 function validateDate($date) {
     // Check date format & named capture each date part. Returns an empty array if no match.
-    $regex_date_format = "/(?<Year>[0-9]{4})\-(?<Month>[0-9]{2})\-(?<Day>[0-9]{2})/";
+    // $regex_date_format = "/(?<Year>[0-9]{4})\-(?<Month>[0-9]{2})\-(?<Day>[0-9]{2})/";
+    # UX improvement
+    $regex_date_format = "/(?<Year>[0-9]{4})\D(?<Month>[0-9]{2})\D(?<Day>[0-9]{2})/";
 
     preg_match($regex_date_format, $date, $birthdate);
 
@@ -23,6 +25,7 @@ function validateDate($date) {
         return false;
     }
 
+    $date = $birthdate['Year'] .'-'. $birthdate['Month'] .'-'. $birthdate['Day'];
     return $date;
 }
 

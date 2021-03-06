@@ -1,10 +1,10 @@
 <?php
 
 require_once __DIR__ . "/app/config.php";
-// require_once __DIR__ . "/app/telco.php";
+require_once __DIR__ . "/app/telco.php";
 
-// $subscription  = new Subscription(app['sub_msg_url'], app['sub_status_url'], app['sub_base_url']);
-// $base_size = $subscription->getBaseSize(app['app_id'], app['password']);
+$subscription  = new Subscription(app['sub_msg_url'], app['sub_status_url'], app['sub_base_url']);
+$active = $subscription->getBaseSize(app['app_id'], app['password']);
 
 $today = date("Y-m-d");
 
@@ -17,15 +17,18 @@ if (!isset($dashboard['date'])) {
     executeSQL($mysqli, $sql);
 }
 
-// $total_users = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'])['total'];
-// $female = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sex = 'female'")['total'];
-// $male = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sex = 'male'")['total'];
-$total_reg = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status = '".app['sub_reg']."'")['total'];
-$total_unreg = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status = '".app['sub_unreg']."'")['total'];
-$total_pending = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status LIKE '%PENDING%' OR sub_status = 'TEMPORARY BLOCKED' AND NOT sub_status = '".app['sub_not_confirmed']."'")['total'];
-$today_reg = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status = '".app['sub_reg']."' AND sub_date = '$today'")['total'];
-$today_unreg = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE sub_status = '".app['sub_unreg']."' AND sub_date = '$today'")['total'];
-$today_pending = getSQLdata($mysqli, "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE (sub_status LIKE '%PENDING%' OR sub_status = 'TEMPORARY BLOCKED') AND sub_date = '$today' AND NOT sub_status = '".app['sub_not_confirmed']."'")['total'];
+$sql = "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE ";
+
+$total_sql = $sql . "NOT sub_status = '". app['sub_unreg'] ."' AND NOT sub_status = '". app['sub_not_confirmed'] ."'";
+$today_reg_sql = $sql . "sub_status = '". app['sub_reg'] ."' AND sub_date = '$today'";
+$today_unreg_sql = $sql . "sub_status = '". app['sub_unreg'] ."' AND sub_date = '$today'";
+$today_pending_sql = $sql . "NOT sub_status = '". app['sub_reg'] ."' AND NOT sub_status = '". app['sub_unreg'] ."' AND NOT sub_status = '". app['sub_not_confirmed'] ."' AND sub_date = '$today'";
+
+$total = getSQLdata($mysqli, $total_sql)['total'];
+$pending = intval($total) - intval($active);
+$today_reg = getSQLdata($mysqli, $today_reg_sql)['total'];
+$today_unreg = getSQLdata($mysqli, $today_unreg_sql)['total'];
+$today_pending = getSQLdata($mysqli, $today_pending_sql)['total'];
 
 $update_dashboard = [];
 
@@ -38,14 +41,8 @@ if ($dashboard['unreg'] !== $today_unreg) {
 if ($dashboard['pending'] !== $today_pending) {
     $update_dashboard['pending'] = $today_pending;
 }
-if ($dashboard['total_reg'] !== $total_reg) {
-    $update_dashboard['total_reg'] = $total_reg;
-}
-if ($dashboard['total_unreg'] !== $total_unreg) {
-    $update_dashboard['total_unreg'] = $total_unreg;
-}
-if ($dashboard['total_pending'] !== $total_pending) {
-    $update_dashboard['total_pending'] = $total_pending;
+if ($dashboard['active'] !== $active) {
+    $update_dashboard['active'] = $active;
 }
 
 if (!empty($update_dashboard)) {
@@ -158,12 +155,8 @@ if (!empty($update_dashboard)) {
     <tr>
         <th>Application Name</th>
         <th>Date</th>
-        <!-- <th>Base Size</th> -->
-        <!-- <th>Total Users</th> -->
-        <!-- <th>Female</th>
-        <th>Boys</th> -->
-        <th>Registered Users</th>
-        <th>Unregistered Users</th>
+        <th>Total Users</th>
+        <th>Active Users</th>
         <th>Pending Users</th>
         <th>Today Reg Users</th>
         <th>Today Unreg Users</th>
@@ -174,13 +167,9 @@ if (!empty($update_dashboard)) {
         <tr>
         <td data-label="Application Name"><?php echo app['app_name']; ?></td>
         <td data-label="Date"><?php echo $today; ?></td>
-        <!-- <td data-label="Base Size"><?php #echo $base_size; ?></td> -->
-        <!-- <td data-label="Total Users"><?php #echo $total_users; ?></td> -->
-        <!-- <td data-label="Female"><?php #echo $female; ?></td>
-        <td data-label="Male"><?php #echo $male; ?></td> -->
-        <td data-label="Registered Users"><?php echo $total_reg; ?></td>
-        <td data-label="Unregistered Users"><?php echo $total_unreg; ?></td>
-        <td data-label="Pending Users"><?php echo $total_pending; ?></td>
+        <td data-label="Total Users"><?php echo $total; ?></td>
+        <td data-label="Active Users"><?php echo $active; ?></td>
+        <td data-label="Pending Users"><?php echo $pending; ?></td>
         <td data-label="Today Reg Users"><?php echo $today_reg; ?></td>
         <td data-label="Today Unreg Users"><?php echo $today_unreg; ?></td>
         <td data-label="Today Pending Users"><?php echo $today_pending; ?></td>

@@ -78,9 +78,7 @@ CREATE TABLE IF NOT EXISTS `telco_dashboard` (
   `reg` int,
   `unreg` int,
   `pending` int,
-  `total_reg` int,
-  `total_unreg` int,
-  `total_pending` int,
+  `active` int,
   PRIMARY KEY (`date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
