@@ -35,14 +35,26 @@ smslog(
 
 # User subscription status
 # mspace ussd and sms subscription required update
-$sub_status = $_ENV['PLATFORM'] === 'mspace' ? app['sub_reg'] : $subscription->getStatus(app['app_id'], app['password'], $address)['subscriptionStatus'];
-smslog("Platform: ".$_ENV['PLATFORM']."\nSub url: ".app['sub_msg_url']."\nSubscription: ".print_r($sub_status, true), false);
+if ($_ENV['PLATFORM'] === 'mspace') {
+    $sub_status = app['sub_reg'];
+} else {
+    $response = $subscription->getStatus(app['app_id'], app['password'], $address);
+    if (!empty($response['subscriptionStatus'])) {
+        $sub_status = $response['subscriptionStatus'];
+    } else {
+        smslog('Sub Status Response: '. var_dump_ret($response));
+    }
+}
+
+smslog('Platform: '. $_ENV['PLATFORM'] .
+        "\nSub url: ". app['sub_msg_url'] .
+        "\nSubscription: ". var_dump_ret($sub_status), false);
 
 $user_sql = "Select username, sub_status from ". app['user_table'] ." WHERE address= '$address'";
 $user = getSQLdata($mysqli, $user_sql);
 
-if (isset($user['sub_status']) && $user['sub_status'] !== $sub_status) {
-    updateUserDB($mysqli, $address, ['sub_status' => $sub_status, 'sub_date' => $date]);
+if (!empty($sub_status) && $user['sub_status'] !== $sub_status) {
+    updateUserDB($mysqli, $address, ['sub_status' => $sub_status]);
 }
 
 try {
