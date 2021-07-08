@@ -1,4 +1,4 @@
-<?php
++<?php
 
 require_once __DIR__ . "/app/logger.php";
 require_once __DIR__ . "/app/config.php";
@@ -10,8 +10,7 @@ if (isset(
     $jsonRequest['subscriberId'],
     $jsonRequest['timeStamp']
 )) {
-    ussdlog("Sub_notify\n".var_dump_ret($jsonRequest));
-
+    dashlog('Subscription Notification: '. var_dump_ret($jsonRequest));
     if($jsonRequest['applicationId'] === app['app_id']) {
         $regex_api_timestamp = "/(?<year>^\d{4})(?<month>\d{2})(?<day>\d{2})/";
         preg_match($regex_api_timestamp, $jsonRequest['timeStamp'], $date);

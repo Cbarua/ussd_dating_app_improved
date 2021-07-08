@@ -32,8 +32,8 @@ $msg_arr = array(
 
         # Register User Messages
         'reg_name' =>   "Welcome to ". app['app_name'] . " USSD Application." . 
-                        "\nObata Galapenama Kenaa Dan Lesiyenma Soyaganna Puluwan.
-                        \nObe Nama Sadahan Karanna.",
+                        "\nObata Galapenama Kenaa Dan Lesiyenma Soyaganna Puluwan.".
+                        "\nObe Nama Sadahan Karanna.",
 
         'reg_name_int' =>       "Welcome to ". app['app_name'] . " USSD Application." . 
                                 "\nObata Galapenama Kenaa Dan Lesiyenma Soyaganna Puluwan.

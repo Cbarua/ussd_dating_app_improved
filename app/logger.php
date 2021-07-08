@@ -74,7 +74,7 @@ function dashlog($data, $isDate = true){
 
     $data = var_dump_ret($data);
 
-    strpos($data, 'Dashboard Update') !== false ? $method = 'w': $method = 'a';
+    // strpos($data, 'Dashboard Update') !== false ? $method = 'w': $method = 'a';
     
     $file = fopen($logfile, $method);
     fwrite($file, $date . $data . "\n\n");
