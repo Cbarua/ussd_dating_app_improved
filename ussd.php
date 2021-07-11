@@ -79,7 +79,8 @@ if ($ussd_operation === "mo-init") {
                 if (isset($response['subscriptionStatus']) || $response['statusCode'] === 'S1000') {
                     $sub_status = $response['subscriptionStatus'];
 
-                    ussdlog("Sub Status: ".$sub_status);
+                    ussdlog('Sub Status: '.$sub_status);
+                    dashlog('Subscription Notification: '. var_dump_ret($response));
 
                     # bdapps subscription confirmation required update
                     if ($sub_status === app['sub_not_confirmed']) {
