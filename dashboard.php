@@ -15,6 +15,11 @@ $dashboard = getSQLdata($mysqli, $sql);
 if (!isset($dashboard['date'])) {
     $sql = "INSERT INTO ". app['dash_table'] ."(date) VALUES ('$today')";
     executeSQL($mysqli, $sql);
+
+    // Solution for
+    // Trying to access array offset &
+    // Undefined index problem
+    $dashboard = ['reg' => 0, 'unreg' => 0, 'pending' => 0, 'active' => 0];
 }
 
 $sql = "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE ";

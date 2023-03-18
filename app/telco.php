@@ -536,6 +536,9 @@ class DirectDebitSender extends core
 # Subscription
 class Subscription extends Core
 {
+    private $sendURL;
+    private $getStatusURL;
+    private $baseURL;
 
     public function __construct($sendURL, $getStatusURL, $baseURL)
     {
@@ -683,6 +686,53 @@ class CassException extends Exception
     public function getRawResponse()
     {
         return $this->response;
+    }
+}
+
+# OTP
+class OTP extends Core
+{
+    private $requestURL;
+    private $verifyURL;
+    private $applicationId;
+    private $password;
+
+    public function __construct($requestURL, $verifyURL, $applicationId, $password)
+    {
+        $this->requestURL = $requestURL;
+        $this->verifyURL = $verifyURL;
+        $this->applicationId = $applicationId;
+        $this->password = $password;
+    }
+
+    public function request($subscriberId, $metaData)
+    {
+        $arrayField = array(
+            "applicationId" => $this->applicationId,
+            "password" => $this->password,
+            "subscriberId" => $subscriberId,
+            "applicationMetaData" => $metaData
+        );
+
+        $jsonObjectFields = json_encode($arrayField);
+        $res = $this->sendRequest($jsonObjectFields, $this->requestURL);
+        $response = json_decode($res, true);
+        return $response;
+    }
+
+    public function verify($referenceNo, $otp)
+    {
+        $arrayField = array(
+            "applicationId" => $this->applicationId,
+            "password" => $this->password,
+            "referenceNo" => $referenceNo,
+            "otp" => $otp
+        );
+
+        $jsonObjectFields = json_encode($arrayField);
+        $res = $this->sendRequest($jsonObjectFields, $this->verifyURL);
+        $response = json_decode($res, true);
+        return $response;
     }
 }
 

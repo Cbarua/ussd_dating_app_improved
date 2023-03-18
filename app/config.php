@@ -25,6 +25,8 @@ $app_arr = array(
     'sub_msg_url' => $_ENV['SUB_MSG_URL'] ? $_ENV['SUB_MSG_URL'] : 'http://127.0.0.1:7000/subscription/send',
     'sub_base_url' => $_ENV['SUB_BASE_URL'] ? $_ENV['SUB_BASE_URL'] : 'http://127.0.0.1:7000/subscription/query-base',
     'sub_status_url' => $_ENV['SUB_STATUS_URL'] ? $_ENV['SUB_STATUS_URL'] : 'http://127.0.0.1:7000/subscription/getStatus',
+    'otp_request_url' => $_ENV['OTP_REQUEST_URL'],
+    'otp_verify_url' => $_ENV['OTP_VERIFY_URL'],
 
     # App Configurations
     'reg_action' => '1',
