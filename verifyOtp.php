@@ -12,12 +12,12 @@ require_once __DIR__ . "/app/ussd_helper_funcs.php";
 
 dblog($otp);
 
-// $otp = new OTP(app['otp_request_url'], app['otp_verify_url'], app['app_id'], app['password']);
-// $response = $otp->verify($referenceNo, $otp);
+$otp = new OTP(app['otp_request_url'], app['otp_verify_url'], app['app_id'], app['password']);
+$response = $otp->verify($referenceNo, $otp);
 
 $message = ['status' => ''];
 
-$response['subscriptionStatus'] = 'true';
+// $response['subscriptionStatus'] = 'true';
 
 if (!empty($response['subscriptionStatus'])) {
     $sub_status = $response['subscriptionStatus'];
@@ -33,22 +33,6 @@ if (!empty($response['subscriptionStatus'])) {
     dblog('OTP User Response: '. var_dump_ret($response));
     $message['status'] = 'failed';
 }
-
-// $success = [
-//     "referenceNo" => "9476078545616789149261813965842",
-//     "statusDetail" => "Request was successfully processed.",
-//     "version" => "1.0",
-//     "statusCode" => "S1000"
-// ];
-
-// $fail = [
-//     "statusDetail" => "user already registered",
-//     "version" => "1.0",
-//     "statusCode" => "E1351"
-// ];
-
-// $responses = [$success, $fail];
-// $response = $responses[rand(0, 1)];
 
 header("Content-Type: application/json");
 echo json_encode($message);

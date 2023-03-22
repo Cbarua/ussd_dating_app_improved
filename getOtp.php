@@ -11,8 +11,8 @@ require_once __DIR__ . "/app/telco.php";
 
 dblog($metaData);
 
-// $otp = new OTP(app['otp_request_url'], app['otp_verify_url'], app['app_id'], app['password']);
-// $response = $otp->request($subscriberId, $metaData);
+$otp = new OTP(app['otp_request_url'], app['otp_verify_url'], app['app_id'], app['password']);
+$response = $otp->request($subscriberId, $metaData);
 
 $success = [
     "referenceNo" => "9476078545616789149261813965842",
@@ -27,8 +27,8 @@ $fail = [
     "statusCode" => "E1351"
 ];
 
-$responses = [$success, $fail];
-$response = $responses[rand(0, 1)];
+// $responses = [$success, $fail];
+// $response = $responses[rand(0, 1)];
 
 header("Content-Type: application/json");
 echo json_encode($response);
