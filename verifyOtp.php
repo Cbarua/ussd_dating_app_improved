@@ -11,9 +11,12 @@ require_once __DIR__ . "/app/ussd_helper_funcs.php";
 ] = json_decode(file_get_contents('php://input'), true);
 
 dblog($otp);
+dblog($referenceNo);
 
 $otp = new OTP(app['otp_request_url'], app['otp_verify_url'], app['app_id'], app['password']);
 $response = $otp->verify($referenceNo, $otp);
+
+dblog($response);
 
 $message = ['status' => ''];
 
@@ -30,9 +33,10 @@ if (!empty($response['subscriptionStatus'])) {
         $message['status'] = 'success';
     }
 } else {
-    dblog('OTP User Response: '. var_dump_ret($response));
     $message['status'] = 'failed';
 }
+
+// $message['status'] = 'success';
 
 header("Content-Type: application/json");
 echo json_encode($message);
