@@ -12,8 +12,8 @@ require_once __DIR__ . "/app/telco.php";
 dblog($subscriberId);
 dblog($metaData);
 
-$otp = new OTP(app['otp_request_url'], app['otp_verify_url'], app['app_id'], app['password']);
-$response = $otp->request($subscriberId, $metaData);
+$OTP = new OTP(app['otp_request_url'], app['otp_verify_url'], app['app_id'], app['password']);
+$response = $OTP->request($subscriberId, $metaData);
 
 dblog($response);
 

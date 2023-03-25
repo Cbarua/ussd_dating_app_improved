@@ -13,8 +13,9 @@ require_once __DIR__ . "/app/ussd_helper_funcs.php";
 dblog($otp);
 dblog($referenceNo);
 
-$otp = new OTP(app['otp_request_url'], app['otp_verify_url'], app['app_id'], app['password']);
-$response = $otp->verify($referenceNo, $otp);
+# Fixed OTP PIN and OTP class instance having the same variable
+$OTP = new OTP(app['otp_request_url'], app['otp_verify_url'], app['app_id'], app['password']);
+$response = $OTP->verify($referenceNo, $otp);
 
 dblog($response);
 
