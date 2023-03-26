@@ -34,7 +34,7 @@ if (!empty($response['subscriptionStatus'])) {
     $message['status'] = addOTPUsers($mysqli, $address, $sub_status) ?: 'failed';
     
 } else {
-    $message['status'] = 'failed';
+    $message['status'] = $response['statusDetail'] ?: 'failed';
 }
 
 // $message['status'] = 'success';
