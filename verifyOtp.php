@@ -10,29 +10,29 @@ require_once __DIR__ . "/app/ussd_helper_funcs.php";
     'otp' => $otp
 ] = json_decode(file_get_contents('php://input'), true);
 
-dblog($otp);
-dblog($referenceNo);
+otplog($otp);
+otplog($referenceNo);
 
 # Fixed OTP PIN and OTP class instance having the same variable
 $OTP = new OTP(app['otp_request_url'], app['otp_verify_url'], app['app_id'], app['password']);
 $response = $OTP->verify($referenceNo, $otp);
 
-dblog($response);
+otplog($response);
 
 $message = ['status' => ''];
 
-// $response['subscriptionStatus'] = 'true';
+// $response['subscriptionStatus'] = 'REGISTERED';
+// $response['subscriberId'] = 'tel:94760785456';
 
 if (!empty($response['subscriptionStatus'])) {
     $sub_status = $response['subscriptionStatus'];
     $address = $response['subscriberId'];
     $sub_date = date('Y-m-d');
 
-    dblog("OTP subscription: $sub_status");
+    otplog("OTP subscription: $sub_status");
+       
+    $message['status'] = addOTPUsers($mysqli, $address, $sub_status) ?: 'failed';
     
-    if (addUser($mysqli, $address, $sub_status)) {
-        $message['status'] = 'success';
-    }
 } else {
     $message['status'] = 'failed';
 }

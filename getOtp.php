@@ -9,13 +9,14 @@ require_once __DIR__ . "/app/telco.php";
     'applicationMetaData' => $metaData
 ] = json_decode(file_get_contents('php://input'), true);
 
-dblog($subscriberId);
-dblog($metaData);
+otplog('New log');
+otplog($subscriberId);
+otplog($metaData);
 
 $OTP = new OTP(app['otp_request_url'], app['otp_verify_url'], app['app_id'], app['password']);
 $response = $OTP->request($subscriberId, $metaData);
 
-dblog($response);
+otplog($response);
 
 # test code
 $success = [

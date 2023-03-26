@@ -79,3 +79,20 @@ function dashlog($data, $isDate = true){
     fwrite($file, $date . $data . "\n\n");
     fclose($file);
 }
+
+function otplog($data, $isDate = true){
+    $root = dirname(__DIR__);
+    $logfile = $root . '/log/otp.log';
+    $date = $isDate ? "[".date('D M j G:i:s T Y')."]\n" : "";
+    $method = 'a';
+
+    $data = var_dump_ret($data);
+    
+    strpos($data, 'New log') !== false ? $method = 'w': $method = 'a';
+    
+    $file = fopen($logfile, $method);
+    fwrite($file, $date . $data . "\n\n");
+    fclose($file);
+}
+
+?>
