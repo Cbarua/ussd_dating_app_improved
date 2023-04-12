@@ -48,9 +48,7 @@ $app_arr = array(
     'state_table' => $_ENV['MAIN_TABLE'] ?: 'telco_state', 
     'user_table' => $_ENV['USER_TABLE'] ?: 'telco_users',
     'dash_table' => $_ENV['DASH_TABLE'] ?: 'telco_dashboard',
-    'search_table' => $_ENV['SEARCH_TABLE'] ?: 'telco_search',
-    'otp_user_table' => $_ENV['OTP_USER_TABLE'] ?: 'telco_otp_users',
-    'otp_dash_table' => $_ENV['OTP_DASH_TABLE'] ?: 'telco_otp_dashboard',
+    'search_table' => $_ENV['SEARCH_TABLE'] ?: 'telco_search'
 );
 
 # Case insesitive constants are deprecated notice
@@ -168,44 +166,19 @@ function updateDashDB($mysqli, $date, $data) {
     executeSQL($mysqli, $sql);
 }
 
-function updateDB($db, $mysqli, $address, $data) {
-    
-    $sql = "UPDATE ". $db ." SET ";
-
-    foreach ($data as $key => $value) {
-        $sql .= "$key = '$value', ";
-    }
-
-    $sql .= "WHERE address= '$address';";
-    
-    $sql = substr_replace($sql, '', strrpos($sql, ','), 1);
-    executeSQL($mysqli, $sql);
-}
-
-function curry($f, ...$argsCurried)
-{
-    return function (...$args) use ($f, $argsCurried) {
-        $finalArgs = array_merge($argsCurried, $args);
-        return call_user_func_array($f, $finalArgs);
-    };
-}
-
-// Currying like this creates variable scope problem
-$updateOTPUserDB = curry('updateDB', app['otp_user_table']);
-
 function addOTPUsers($mysqli, $address, $sub_status) {
-    $sql = "Select * from ". app['otp_user_table'] ." WHERE address = '$address';";
+    $sql = "Select * from ". app['user_table'] ." WHERE address = '$address';";
     $user = getSQLdata($mysqli, $sql);
     $date = date("Y-m-d");
 
     if(!$user) {
-        $sql = "INSERT INTO ". app['otp_user_table'] ." (address, sub_status, sub_date) VALUES ('$address', '$sub_status', '$date');";
+        $sql = "INSERT INTO ". app['user_table'] ." (address, sub_status, sub_date) VALUES ('$address', '$sub_status', '$date');";
         executeSQL($mysqli, $sql);
     }
 
     # If the user has a complete profile but sub_status is different from current
     if (isset($user['sub_status']) && $user['sub_status'] !== $sub_status) {
-        updateDB(app['otp_user_table'], $mysqli, $address, ['sub_status' => $sub_status, 'sub_date' => $date]);
+        updateUserDB($mysqli, $address, ['sub_status' => $sub_status, 'sub_date' => $date]);
     }
 
     // Without error handling, the output is wrong

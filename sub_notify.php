@@ -1,4 +1,4 @@
-+<?php
+<?php
 
 require_once __DIR__ . "/app/logger.php";
 require_once __DIR__ . "/app/config.php";

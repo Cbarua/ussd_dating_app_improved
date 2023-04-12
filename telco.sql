@@ -83,24 +83,6 @@ CREATE TABLE IF NOT EXISTS `telco_dashboard` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
-CREATE TABLE IF NOT EXISTS `telco_otp_users` (
-  `address` varchar(100) NOT NULL,
-  `sub_status` varchar(30),
-  `sub_date` date,
-  PRIMARY KEY (`address`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-
-CREATE TABLE IF NOT EXISTS `telco_otp_dashboard` (
-  `date` date NOT NULL,
-  `reg` int(3),
-  `unreg` int(3),
-  `active` int(4),
-  `total` int(5),
-  PRIMARY KEY (`date`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
