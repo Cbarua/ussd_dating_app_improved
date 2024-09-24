@@ -1,7 +1,7 @@
 <?php
 
 # Necessary libraries
-require_once __DIR__ . "/app/config.php";          
+require_once __DIR__ . "/app/config.php";
 $_ENV['PLATFORM'] === 'bdapps' ? require_once __DIR__ . "/app/msg_en.php" : require_once __DIR__ . "/app/msg_sl.php";
 require_once __DIR__ . "/app/telco.php";
 
@@ -25,7 +25,7 @@ $content        = $receiver->getMessage();
 
 smslog(
     // '['.date('D M j G:i:s T Y').'] '."\n".
-    "source_address : $address\n".
+    "source_address : $address\n" .
     // "request_id     : $request_id\n".
     // "encoding       : $encoding\n".
     // "application_id : $application_id\n".
@@ -42,15 +42,15 @@ if ($_ENV['PLATFORM'] === 'mspace') {
     if (!empty($response['subscriptionStatus'])) {
         $sub_status = $response['subscriptionStatus'];
     } else {
-        smslog('Sub Status Response: '. var_dump_ret($response));
+        smslog('Sub Status Response: ' . var_dump_ret($response));
     }
 }
 
-smslog('Platform: '. $_ENV['PLATFORM'] .
-        "\nSub url: ". app['sub_msg_url'] .
-        "\nSubscription: ". var_dump_ret($sub_status), false);
+smslog('Platform: ' . $_ENV['PLATFORM'] .
+    "\nSub url: " . app['sub_msg_url'] .
+    "\nSubscription: " . var_dump_ret($sub_status), false);
 
-$user_sql = "Select username, sub_status from ". app['user_table'] ." WHERE address= '$address'";
+$user_sql = "Select username, sub_status from " . app['user_table'] . " WHERE address= '$address'";
 $user = getSQLdata($mysqli, $user_sql);
 
 if (!empty($sub_status) && $user['sub_status'] !== $sub_status) {
@@ -59,28 +59,57 @@ if (!empty($sub_status) && $user['sub_status'] !== $sub_status) {
 
 try {
     if ($sub_status === app['sub_reg']) {
+
+        if (is_null($user['username'])) {
+            $message = empty($_ENV['USSD']) ? msg['username_e_no_ussd'] : msg['username_e'];
+            smslog("Message\n" . $message);
+            $sender->sms($message, $address);
+            exit();
+        }
+        
+        // set username
+        if (str_contains($content, 'setname ')) {
+            $parts = explode('setname ', $content, 3);
+            $name = strtolower(trim($parts[1]));
+
+            $regex_name = "/^[a-z]{3,10}$/i";
+
+            $is_valid = preg_match($regex_name, $name) === 1;
+
+            if ($is_valid) {
+                $similar_usernames = getSQLdata($mysqli, "SELECT username from " . app['user_table'] . " WHERE username LIKE '$name%'"); // Using wildcard character '%'
+                $username = $name . count($similar_usernames);
+            } else {
+                $username = $name;
+            }
+
+            $name = ucfirst($name);
+            updateUserDB($mysqli, $address, ['name' => $name, 'username' => $username]);
+
+            $message = msg['username_info'] . $username . "\n" . msg['help_chat'];
+            smslog("Message\n" . $message);
+            $sender->sms($message, $address);
+            exit();
+        }
+
         $parts = explode(' ', $content, 3);
         $username = $parts[1];
         $content = $parts[2];
-        $message = msg['help'];
+        $message = empty($_ENV['USSD']) ? msg['help_chat'] : msg['help'];
 
-        if ($parts[0] === app['keyword']) {
-    
-            if(isset($username, $content)) {
-    
-                $address_sql = "Select address from ". app['user_table'] ." WHERE username= '$username'";
+        if (strtolower($parts[0]) === app['keyword']) {
+            if (!empty($username) && !empty($content)) {
+
+                $address_sql = "Select address from " . app['user_table'] . " WHERE username= '$username'";
                 $receiver_address  = getSQLdata($mysqli, $address_sql)['address'];
 
-                if(is_null($user['username'])) {
-                    $message = msg['username_e'];
-                } 
-                elseif(is_null($receiver_address)) {
-                    $message = msg['chat_no_user'];
+                if (is_null($receiver_address)) {
+                    $message = msg['chat_no_user'] . "\n " . msg['help_chat'];
                 } else {
-                    $message = $user['username'].": $content";
+                    $message = $user['username'] . ": $content";
                     $address = $receiver_address;
                 }
-            }  
+            }
         }
     } elseif ($sub_status === app['sub_unreg']) {
         $message = msg['subscribe_first'];
@@ -89,15 +118,12 @@ try {
     } elseif ($sub_status === app['sub_not_confirmed']) {
         $message = msg['not_confirmed_e'];
     } else {
-        $message = "App error! Line: ". __LINE__;
+        $message = "App error! Line: " . __LINE__;
     }
-    
-    smslog("Message\n".$message);
 
-    $sender->sms($message, $address);  
-} 
-catch (SMSServiceException $e) {
-    smslog($receiver->getAddress() . "\nSMS ERROR: {$e->getErrorCode()} | {$e->getErrorMessage()}"); 
+    smslog("Message\n" . $message);
+
+    $sender->sms($message, $address);
+} catch (SMSServiceException $e) {
+    smslog($receiver->getAddress() . "\nSMS ERROR: {$e->getErrorCode()} | {$e->getErrorMessage()}");
 }
-
-?>

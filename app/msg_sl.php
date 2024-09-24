@@ -28,6 +28,10 @@ $msg_arr = array(
                         app['keyword'] . "<histhanak>Yaluwage Username<histhanak>Oyage Message Eka Sadahan Kara ". app['sms'] . "ta Yawanna. \n" . 
                         "Udaharana:-". app['keyword'] . " dinuka kohomada oyata? Sent " . app['sms'],
 
+        'help_chat' =>  "***Chat Kirimata Upades***\n" . 
+                        app['keyword'] . "<histhanak>Yaluwage Username<histhanak>Oyage Message Eka Sadahan Kara ". app['sms'] . "ta Yawanna. \n" . 
+                        "Udaharana:-". app['keyword'] . " dinuka kohomada oyata? Sent " . app['sms'],
+
         'notify' =>    "Keti Paniwidayak Magin Labena Upades Pilipadinna.\n0.Main menu",
 
         # Register User Messages
@@ -90,6 +94,12 @@ $msg_arr = array(
         'nav_e' =>              "Input Error!\n",
         
         'username_e' =>         "Obata username ekak nomatha. \n" . app['ussd']. " Amathanna.",
+
+        'username_e_no_ussd' => "Obata username ekak nomatha. \nKarunakara obe nama athulath karanna. \n".
+                                app['keyword'] . "<histhanak>setname<histhanak><Oyage Nama> Sadahan Kara ". app['sms'] . "ta Yawanna. \n" .
+                                "Udaharana:-". app['keyword'] . " setname malinda \nSent " . app['sms'],
+
+        'username_info' =>      "Obage username wanne ",
 
         'pending_e' =>          "Mema Sebawa Pawicchi Kirimata Obe Sheshaya Pramanawath Natha. \n".
                                 "Karunakara Pasuwa Uthsaha Karanna.",
