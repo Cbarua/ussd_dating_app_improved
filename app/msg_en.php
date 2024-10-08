@@ -29,7 +29,11 @@ $msg_arr = array(
                         "Dial " .app['ussd']. " and press 1 to find a new friend.\n" . 
                         "Your friends can also chat with you by dialing ".app['ussd'].".\n".
                         "***How to chat***\n" . 
-                        app['keyword'] . "<space>friend's username<space>type your message and send to ". app['sms'] . ".\n" .  
+                        app['keyword'] . "<space>friend's username<space>type your message and then send to ". app['sms'] . ".\n" .  
+                        "Example:-". app['keyword'] . " $example_names[2] how are you? Send to " . app['sms'],
+
+        'help_chat' =>  "***How to chat***\n" . 
+                        app['keyword'] . "<space>friend's username<space>type your message and then send to ". app['sms'] . ".\n" .  
                         "Example:-". app['keyword'] . " $example_names[2] how are you? Send to " . app['sms'],
 
         'notify' =>     "Follow the instructions you got from the SMS.\n0.Main menu",
@@ -90,7 +94,13 @@ $msg_arr = array(
         # Others
         'nav_e' =>              "Invalid input!\n",
 
-        'username_e' =>         "You don't have a username. Please dial ". app['ussd'], 
+        'username_e' =>         "You don't have a username. Please dial ". app['ussd'],
+
+        'username_e_no_ussd' => "You don't have a username. \nPlease enter your name. \n".
+                                app['keyword'] . "<space>setname<space><Your name> and then send to ". app['sms'] . "\n" .
+                                "Example:-". app['keyword'] . " setname $example_names[1] \n and then send to " . app['sms'],
+
+        'username_info' =>      "Your username is ",
                                 
         'pending_e' =>          "You don't have sufficient balance.\n".
                                 "Please top-up your balance.",
