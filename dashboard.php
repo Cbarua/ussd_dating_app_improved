@@ -6,6 +6,19 @@ require_once __DIR__ . "/app/telco.php";
 $subscription  = new Subscription(app['sub_msg_url'], app['sub_status_url'], app['sub_base_url']);
 $active = $subscription->getBaseSize(app['app_id'], app['password']);
 
+function subtractStrictLowerTen($numStr) {
+    // Convert string to integer
+    $num = intval($numStr);
+    
+    // Find the nearest lower multiple of 10 (excluding itself)
+    $nearestLowerTen = ($num % 10 == 0) ? ($num - 10) : (floor($num / 10) * 10);
+    
+    // Perform the subtraction
+    return $num - $nearestLowerTen;
+}
+
+$active = subtractStrictLowerTen($active);
+
 $today = date("Y-m-d");
 
 # Dashboard
