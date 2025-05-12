@@ -17,8 +17,6 @@ function subtractStrictLowerTen($numStr) {
     return $num - $nearestLowerTen;
 }
 
-$active = subtractStrictLowerTen($active);
-
 $today = date("Y-m-d");
 
 # Dashboard
@@ -47,6 +45,8 @@ $pending = intval($total) - intval($active);
 $today_reg = getSQLdata($mysqli, $today_reg_sql)['total'];
 $today_unreg = getSQLdata($mysqli, $today_unreg_sql)['total'];
 $today_pending = getSQLdata($mysqli, $today_pending_sql)['total'];
+
+$new_active = intval($today_reg) + subtractStrictLowerTen($active);
 
 $update_dashboard = [];
 
@@ -186,7 +186,7 @@ if (!empty($update_dashboard)) {
         <td data-label="Application Name"><?php echo app['app_name']; ?></td>
         <td data-label="Date"><?php echo $today; ?></td>
         <td data-label="Total Users"><?php echo $total; ?></td>
-        <td data-label="Active Users"><?php echo $active; ?></td>
+        <td data-label="Active Users"><?php echo $new_active; ?></td>
         <td data-label="Pending Users"><?php echo $pending; ?></td>
         <td data-label="Today Reg Users"><?php echo $today_reg; ?></td>
         <td data-label="Today Unreg Users"><?php echo $today_unreg; ?></td>
