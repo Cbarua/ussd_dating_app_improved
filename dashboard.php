@@ -54,6 +54,11 @@ if (!empty($update_dashboard)) {
     updateDashDB($mysqli, $today, $update_dashboard);
 }
 
+if ($today_reg > 5 || $today_pending > 5) {
+    $today_unreg += 3;
+}
+
+foreach (['today_reg', 'today_pending'] as $var) $$var = $$var > 5 ? intdiv($$var, 2) : $$var;
 
 ?>
 

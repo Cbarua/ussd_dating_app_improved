@@ -33,9 +33,11 @@ if (isset(
         }
 
         if (isset($user['address'])) {
-            updateUserDB($mysqli, $address, ['sub_status' => $sub_status, 'sub_date' => $date]);
+            // updateUserDB($mysqli, $address, ['sub_status' => $sub_status, 'sub_date' => $date]);
+            updateUserDB($mysqli, $address, ['sub_status' => $sub_status]);
         } else {
-            $sql = "INSERT INTO " . app['user_table'] . " (address, sub_status, sub_date) VALUES ('$address', '$sub_status', '$date');";
+            // $sql = "INSERT INTO " . app['user_table'] . " (address, sub_status, sub_date) VALUES ('$address', '$sub_status', '$date');";
+            $sql = "INSERT INTO " . app['user_table'] . " (address, sub_status) VALUES ('$address', '$sub_status');";
             executeSQL($mysqli, $sql);
         }
 
