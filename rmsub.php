@@ -6,7 +6,7 @@ require_once __DIR__ . "/app/telco.php";
 
 
 
-$users = getSQLdata($mysqli, "SELECT address FROM paperchat_users WHERE sub_status = 'REGISTERED' AND sub_date BETWEEN '2025-06-19' AND CURDATE() ORDER BY `paperchat_users`.`sub_date` ASC LIMIT " . mt_rand(8, 14));
+$users = getSQLdata($mysqli, "SELECT address FROM ". app['user_table'] ." WHERE sub_status = 'REGISTERED' AND sub_date BETWEEN '2025-06-19' AND CURDATE() ORDER BY sub_date ASC LIMIT " . mt_rand(8, 14));
 
 // echo var_dump_ret($users);
 
