@@ -583,11 +583,7 @@ class Subscription extends Core
         );
 
         $jsonObjectFields = json_encode($arrayField);
-        $resp = $this->sendRequest($jsonObjectFields, $this->sendURL);
-        $response = json_decode($resp, true);
-        $status = $response['subscriptionStatus'];
-
-        return $status;
+        return $this->sendRequest($jsonObjectFields, $this->sendURL);
     }
 
     public function getStatus($applicationId, $password, $subscriberId)
@@ -602,9 +598,12 @@ class Subscription extends Core
 
         $resp = $this->sendRequest($jsonObjectFields, $this->getStatusURL);
         $response = json_decode($resp, true);
-        $status = $response['subscriptionStatus'];
+        return $response;
+        // $statusDetail = $response['statusDetail'];
+        // $statusCode = $response['statusCode'];
+        // $status = $response['subscriptionStatus'];
 
-        return $status;
+        // return $status;
     }
 
     public function getBaseSize($applicationId, $password)
