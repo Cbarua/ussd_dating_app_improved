@@ -617,11 +617,7 @@ class Subscription extends Core
         $resp = $this->sendRequest($jsonObjectFields, $this->baseURL);
         $response = json_decode($resp, true);
 
-        $statusDetail = $response['statusDetail'];
-        $statusCode = $response['statusCode'];
-        $status = $response['baseSize'];
-
-        return $status;
+        return $response['baseSize'] ?? 0;
     }
 
 }
