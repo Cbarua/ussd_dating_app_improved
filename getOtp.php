@@ -43,6 +43,16 @@ if ($subscriberId === 'tel:94760123456') {
     
     echo json_encode($apiResponse);
     // exit();
+} else if ($subscriberId === 'tel:94761234567') {
+    $fail = [
+        "statusDetail" => "user already registered",
+        "version" => "1.0",
+        "statusCode" => "E1351"
+    ];
+    
+    $apiResponse = $fail;
+    
+    echo json_encode($apiResponse);
 } else {
 
     $OTP = new OTP(app['otp_request_url'], app['otp_verify_url'], app['app_id'], app['password']);

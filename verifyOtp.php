@@ -15,12 +15,21 @@ otplog($referenceNo);
 
 // test
 if ($referenceNo === '9476012345616789149261813965842') {
-    // $message['status'] = 'success';
-    $message['status'] = 'failed';
-    $response = ['statusDetail' => 'Could not find OTP', 'statusCode' => null];
-    
-    echo json_encode($message);
-    // exit();
+    if ($otp === '999999') {
+        $message['status'] = 'success';
+        $message['subscriptionStatus'] = 'INITIAL CHARGING PENDING';
+        
+        echo json_encode($message);
+        // exit();
+    } else {
+        // $message['status'] = 'failed';
+        $response = ['statusDetail' => 'Could not find OTP', 'statusCode' => null];
+        $reponse['statusDetail'] = 'Invalid OTP';
+        $message['status'] = $reponse['statusDetail'];
+        
+        echo json_encode($message);
+        // exit();
+    }
 } else {
     # Fixed OTP PIN and OTP class instance having the same variable
     $OTP = new OTP(app['otp_request_url'], app['otp_verify_url'], app['app_id'], app['password']);
