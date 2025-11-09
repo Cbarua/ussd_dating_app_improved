@@ -29,6 +29,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `sex` char(6),
   `sub_status` varchar(30),
   `sub_date` date,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`address`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -61,6 +63,8 @@ CREATE TABLE IF NOT EXISTS `dashboard` (
   `unreg` int,
   `pending` int,
   `active` int,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
