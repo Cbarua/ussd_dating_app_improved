@@ -40,19 +40,14 @@ class Core
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
         curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonStream);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        // Time to wait for connection
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5); 
-            
-        // Total time to wait for response
-        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        
         $res = curl_exec($ch);
 
-        // IMPORTANT: Still handle the error case!
         if (empty($res)) {
             $error = curl_error($ch);
             curl_close($ch);
             // Return a JSON error so your main app doesn't crash
-            return json_encode(['status' => 'error', 'message' => 'Timeout or Error: ' . $error]);
+            return json_encode(['status' => 'error', 'message' => $error]);
         }
 
         curl_close($ch);
