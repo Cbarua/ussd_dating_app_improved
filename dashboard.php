@@ -26,12 +26,14 @@ $sql = "SELECT COUNT(address) as total FROM ". app['user_table'] ." WHERE ";
 
 $total_sql = $sql . "NOT sub_status = '". app['sub_unreg'] ."' AND NOT sub_status = '". app['sub_not_confirmed'] ."'";
 $today_reg_sql = $sql . "sub_status = '". app['sub_reg'] ."' AND sub_date = '$today'";
+$today_true_reg_sql = $sql . "sub_status = '". app['sub_reg'] ."' AND DATE(createdAt) = CURDATE()";
 $today_unreg_sql = $sql . "sub_status = '". app['sub_unreg'] ."' AND sub_date = '$today'";
 $today_pending_sql = $sql . "NOT sub_status = '". app['sub_reg'] ."' AND NOT sub_status = '". app['sub_unreg'] ."' AND NOT sub_status = '". app['sub_not_confirmed'] ."' AND sub_date = '$today'";
 
 $total = getSQLdata($mysqli, $total_sql)['total'];
 $pending = intval($total) - intval($active);
 $today_reg = getSQLdata($mysqli, $today_reg_sql)['total'];
+$today_true_reg = getSQLdata($mysqli, $today_true_reg_sql)['total'];
 $today_unreg = getSQLdata($mysqli, $today_unreg_sql)['total'];
 $today_pending = getSQLdata($mysqli, $today_pending_sql)['total'];
 
@@ -163,6 +165,7 @@ if (!empty($update_dashboard)) {
         <th>Total Users</th>
         <th>Active Users</th>
         <th>Pending Users</th>
+        <th>Today Total Reg Users</th>
         <th>Today Reg Users</th>
         <th>Today Unreg Users</th>
         <th>Today Pending Users</th>
@@ -175,7 +178,8 @@ if (!empty($update_dashboard)) {
         <td data-label="Total Users"><?php echo $total; ?></td>
         <td data-label="Active Users"><?php echo $active; ?></td>
         <td data-label="Pending Users"><?php echo $pending; ?></td>
-        <td data-label="Today Reg Users"><?php echo $today_reg; ?></td>
+        <td data-label="Today Total Reg Users"><?php echo $today_reg; ?></td>
+        <td data-label="Today Reg Users"><?php echo $today_true_reg; ?></td>
         <td data-label="Today Unreg Users"><?php echo $today_unreg; ?></td>
         <td data-label="Today Pending Users"><?php echo $today_pending; ?></td>
     </tr>
