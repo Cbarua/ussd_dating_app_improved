@@ -52,6 +52,8 @@ if ($referenceNo === '9476012345616789149261813965842') {
         $message['status'] = $response['statusDetail'] ?: 'failed';
     }
     
+    $message = array_merge($message, $response);
+    
     otplog($message);
     echo json_encode($message);
 }
