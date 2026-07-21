@@ -40,7 +40,8 @@ function addUser($mysqli, $address, $sub_status) {
         updateUserDB($mysqli, $address, ['sub_status' => $sub_status, 'sub_date' => $date]);
     }
 
-    if (!validateDate($user['birthdate'])) {
+    $birthdate = ($user && isset($user['birthdate'])) ? $user['birthdate'] : null;
+    if (!validateDate($birthdate)) {
 
         updateStateDB($mysqli, $address, 'name', 'Register');
         if (isset($user['address'])) {
@@ -77,11 +78,16 @@ function register($stage, $address, $content, $mysqli) {
 
             if($is_valid) {
                 $name = strtolower($content);
-                $is_username_exist = getSQLdata($mysqli, "Select username from ". app['user_table'] ." WHERE username= '$name'")['username'] !== null;
+                $existing_user = getSQLdata($mysqli, "Select username from ". app['user_table'] ." WHERE username= '$name'");
+                $is_username_exist = $existing_user && isset($existing_user['username']) && $existing_user['username'] !== null;
 
                 if ($is_username_exist) {
                     $similar_usernames = getSQLdata($mysqli, "SELECT username from ". app['user_table'] ." WHERE username LIKE '$name%'"); // Using wildcard character '%'
-                    $username = $name . count($similar_usernames);
+                    $similar_count = 0;
+                    if (is_array($similar_usernames)) {
+                        $similar_count = (isset($similar_usernames[0]) && is_array($similar_usernames[0])) ? count($similar_usernames) : 1;
+                    }
+                    $username = $name . $similar_count;
                 } else {
                     $username = $name;
                 }
@@ -164,7 +170,8 @@ function menu($stage, $address, $content, $mysqli) {
                     $message = msg['search_sex'];
                     break;
                 case '2':
-                    $username = getSQLdata($mysqli, "Select username from ". app['user_table'] ." WHERE address= '$address';")['username'];
+                    $user_data = getSQLdata($mysqli, "Select username from ". app['user_table'] ." WHERE address= '$address';");
+                    $username = ($user_data && isset($user_data['username'])) ? $user_data['username'] : '';
                     updateStateDB($mysqli, $address, "username",);
                     $message = "Username = $username\n0.back";
                     break;
@@ -214,6 +221,9 @@ function search($stage, $address, $content, $mysqli) {
         $users = getSQLdata($mysqli, $sql);
     
         $list = array();
+        if (!$users) {
+            return $list;
+        }
         $tz  = new DateTimeZone("Asia/Colombo"); 
         // if only a user
         if (isset($users['address'])) {
@@ -273,15 +283,17 @@ function search($stage, $address, $content, $mysqli) {
             return msg['nav_e'] . msg['search_agelist'];
         }
     
-        $sex = getSQLdata($mysqli, "Select sex from ". app['search_table'] ." WHERE address= '$address'")['sex'];
+        $sex_data = getSQLdata($mysqli, "Select sex from ". app['search_table'] ." WHERE address= '$address'");
+        $sex = ($sex_data && isset($sex_data['sex'])) ? $sex_data['sex'] : '';
     
         $range = $input_list[$content];
         $range_arr = explode("-", $range);
         $min_dob = date("Y-m-d", strtotime("$range_arr[0] years ago"));
         $max_dob = date("Y-m-d", strtotime("$range_arr[1] years ago"));
     
-        $total_users = getSQLdata($mysqli, "Select COUNT(name) as total from ". app['user_table'] ." WHERE NOT address = '$address' AND sex ='$sex' AND
-        birthdate BETWEEN '$max_dob' AND '$min_dob'")['total'];
+        $total_data = getSQLdata($mysqli, "Select COUNT(name) as total from ". app['user_table'] ." WHERE NOT address = '$address' AND sex ='$sex' AND
+        birthdate BETWEEN '$max_dob' AND '$min_dob'");
+        $total_users = ($total_data && isset($total_data['total'])) ? $total_data['total'] : 0;
     
         if ($total_users == 0) {
             return "Sorry! No users. \n" . msg['search_agelist'];
@@ -308,10 +320,10 @@ function search($stage, $address, $content, $mysqli) {
     
         $search_data = getSQLdata($mysqli, "Select * from ". app['search_table'] ." WHERE address= '$address'");
     
-        $sex = $search_data['sex'];
-        $range = $search_data['age_range'];
-        $total = intval($search_data['total']);
-        $offset = intval($search_data['offset']);
+        $sex = ($search_data && isset($search_data['sex'])) ? $search_data['sex'] : '';
+        $range = ($search_data && isset($search_data['age_range'])) ? $search_data['age_range'] : '';
+        $total = ($search_data && isset($search_data['total'])) ? intval($search_data['total']) : 0;
+        $offset = ($search_data && isset($search_data['offset'])) ? intval($search_data['offset']) : 0;
         $users = getUserList($mysqli, $address, $sex, $range, $offset);
     
         if (array_key_exists($content, $users)) {
@@ -396,7 +408,8 @@ function search($stage, $address, $content, $mysqli) {
         case 'result':
             if ($content === "1") {
                 updateStateDB($mysqli, $address, 'end');
-                $username = getSQLdata($mysqli, "Select username from ". app['user_table'] ." WHERE address= '$address'")['username'];
+                $user_data = getSQLdata($mysqli, "Select username from ". app['user_table'] ." WHERE address= '$address'");
+                $username = ($user_data && isset($user_data['username'])) ? $user_data['username'] : '';
                 $message['sms'] = $username ." ". msg['chat_request_sms'];
                 $message['ussd'] = msg['chat_request_sent'];
             } elseif ($content === "0") {

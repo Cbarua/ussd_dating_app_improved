@@ -115,7 +115,11 @@ function updateUserDB($mysqli, $address, $data) {
     $sql = "UPDATE ". app['user_table'] ." SET ";
 
     foreach ($data as $key => $value) {
-        $sql .= "$key = '$value', ";
+        if (is_null($value)) {
+            $sql .= "$key = NULL, ";
+        } else {
+            $sql .= "$key = '$value', ";
+        }
     }
 
     $sql .= "WHERE address= '$address';";
@@ -129,7 +133,11 @@ function updateSearchDB($mysqli, $address, $data) {
     $sql = "UPDATE ". app['search_table'] ." SET ";
 
     foreach ($data as $key => $value) {
-        $sql .= "$key = '$value', ";
+        if (is_null($value)) {
+            $sql .= "$key = NULL, ";
+        } else {
+            $sql .= "$key = '$value', ";
+        }
     }
 
     $sql .= "WHERE address= '$address';";
@@ -157,7 +165,11 @@ function updateDashDB($mysqli, $date, $data) {
     $sql = "UPDATE ". app['dash_table'] ." SET ";
 
     foreach ($data as $key => $value) {
-        $sql .= "$key = '$value', ";
+        if (is_null($value)) {
+            $sql .= "$key = NULL, ";
+        } else {
+            $sql .= "$key = '$value', ";
+        }
     }
 
     $sql .= "WHERE date= '$date';";

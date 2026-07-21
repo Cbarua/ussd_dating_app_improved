@@ -5,10 +5,9 @@ require_once __DIR__ . "/app/logger.php";
 require_once __DIR__ . "/app/config.php";
 require_once __DIR__ . "/app/telco.php";
 
-[
-    'referenceNo' => $referenceNo,
-    'otp' => $otp
-] = json_decode(file_get_contents('php://input'), true);
+$input = json_decode(file_get_contents('php://input'), true);
+$referenceNo = $input['referenceNo'] ?? null;
+$otp = $input['otp'] ?? null;
 
 otplog($otp);
 otplog($referenceNo);
