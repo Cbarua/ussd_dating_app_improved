@@ -3,10 +3,8 @@
 require_once __DIR__ . "/app/logger.php";
 require_once __DIR__ . "/app/config.php";
 
-if (empty($_ENV['USSD']) && $_ENV['PLATFORM'] === 'ideamart') {
-    require_once __DIR__ . "/app/telco.php";
-    require_once __DIR__ . "/app/msg_sl.php";
-}
+$_ENV['PLATFORM'] === 'bdapps' ? require_once __DIR__ . "/app/msg_en.php" : require_once __DIR__ . "/app/msg_sl.php";
+require_once __DIR__ . "/app/telco.php";
 
 $jsonRequest = json_decode(file_get_contents('php://input'), true);
 if (isset(
@@ -29,10 +27,10 @@ if (isset(
 
         # bdapps masked number change update
         if ($_ENV['PLATFORM'] === 'bdapps' && $sub_status === app['sub_unreg']) {
-            updateUserDB($mysqli, $address, ['name' => '', 'username' => '', 'birthdate' => '']);
+            updateUserDB($mysqli, $address, ['name' => null, 'username' => null, 'birthdate' => null]);
         }
 
-        if (isset($user['address'])) {
+        if ($user && isset($user['address'])) {
             updateUserDB($mysqli, $address, ['sub_status' => $sub_status, 'sub_date' => $date]);
         } else {
             $sql = "INSERT INTO " . app['user_table'] . " (address, sub_status, sub_date) VALUES ('$address', '$sub_status', '$date');";
@@ -40,7 +38,8 @@ if (isset(
         }
 
         if ($sub_status !== app['sub_unreg']) {
-            if (empty($user['username'])) {
+            $user_username = ($user && isset($user['username'])) ? $user['username'] : '';
+            if (empty($user_username)) {
                 for ($i=0; $i < 10 ; $i++) { 
                     $username = mt_rand(10000, 99999);
                     $sql = "UPDATE " . app['user_table'] . " SET username = '$username' WHERE address= '$address';";
@@ -54,7 +53,7 @@ if (isset(
                 }
             }
             else {
-                $username = $user['username'];
+                $username = $user_username;
             }
 
             $sender = new SMSSender(app['sms_url'], app['app_id'], app['password']);

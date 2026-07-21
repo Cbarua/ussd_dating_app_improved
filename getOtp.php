@@ -5,10 +5,9 @@ require_once __DIR__ . "/app/logger.php";
 require_once __DIR__ . "/app/config.php";
 require_once __DIR__ . "/app/telco.php";
 
-[
-    'subscriberId' => $subscriberId,
-    'applicationMetaData' => $metaData
-] = json_decode(file_get_contents('php://input'), true);
+$input = json_decode(file_get_contents('php://input'), true);
+$subscriberId = $input['subscriberId'] ?? null;
+$metaData = $input['applicationMetaData'] ?? null;
 
 otplog('New log');
 

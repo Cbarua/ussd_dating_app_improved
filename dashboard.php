@@ -30,12 +30,21 @@ $today_true_reg_sql = $sql . "sub_status = '". app['sub_reg'] ."' AND DATE(creat
 $today_unreg_sql = $sql . "sub_status = '". app['sub_unreg'] ."' AND sub_date = '$today'";
 $today_pending_sql = $sql . "NOT sub_status = '". app['sub_reg'] ."' AND NOT sub_status = '". app['sub_unreg'] ."' AND NOT sub_status = '". app['sub_not_confirmed'] ."' AND sub_date = '$today'";
 
-$total = getSQLdata($mysqli, $total_sql)['total'];
+$total_data = getSQLdata($mysqli, $total_sql);
+$total = ($total_data && isset($total_data['total'])) ? $total_data['total'] : 0;
 $pending = intval($total) - intval($active);
-$today_reg = getSQLdata($mysqli, $today_reg_sql)['total'];
-$today_true_reg = getSQLdata($mysqli, $today_true_reg_sql)['total'];
-$today_unreg = getSQLdata($mysqli, $today_unreg_sql)['total'];
-$today_pending = getSQLdata($mysqli, $today_pending_sql)['total'];
+
+$today_reg_data = getSQLdata($mysqli, $today_reg_sql);
+$today_reg = ($today_reg_data && isset($today_reg_data['total'])) ? $today_reg_data['total'] : 0;
+
+$today_true_reg_data = getSQLdata($mysqli, $today_true_reg_sql);
+$today_true_reg = ($today_true_reg_data && isset($today_true_reg_data['total'])) ? $today_true_reg_data['total'] : 0;
+
+$today_unreg_data = getSQLdata($mysqli, $today_unreg_sql);
+$today_unreg = ($today_unreg_data && isset($today_unreg_data['total'])) ? $today_unreg_data['total'] : 0;
+
+$today_pending_data = getSQLdata($mysqli, $today_pending_sql);
+$today_pending = ($today_pending_data && isset($today_pending_data['total'])) ? $today_pending_data['total'] : 0;
 
 $update_dashboard = [];
 
