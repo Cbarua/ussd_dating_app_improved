@@ -39,10 +39,13 @@ $app_arr = array(
     'sub_msg_url' => $_ENV['SUB_MSG_URL'] ?: 'http://127.0.0.1:7000/subscription/send',
     'sub_base_url' => $_ENV['SUB_BASE_URL'] ?: 'http://127.0.0.1:7000/subscription/query-base',
     'sub_status_url' => $_ENV['SUB_STATUS_URL'] ?: 'http://127.0.0.1:7000/subscription/getStatus',
+    'sub_list_url' => (isset($_ENV['SUB_LIST_URL']) && $_ENV['SUB_LIST_URL'] !== '') ? $_ENV['SUB_LIST_URL'] : 'https://api.mspace.lk/subscription/getSubscriberList',
+    'sub_charging_info_url' => (isset($_ENV['SUB_CHARGING_INFO_URL']) && $_ENV['SUB_CHARGING_INFO_URL'] !== '') ? $_ENV['SUB_CHARGING_INFO_URL'] : 'https://api.mspace.lk/subscription/getSubscriberChargingInfo',
     'otp_request_url' => $_ENV['OTP_REQUEST_URL'] ?: '',
     'otp_verify_url' => $_ENV['OTP_VERIFY_URL'] ?: '',
 
     # App Configurations
+    'platform' => $_ENV['PLATFORM'] ?: 'ideamart',
     'reg_action' => '1',
     'version' => '1.0',
     'app_id' => $_ENV['APP_ID'] ?: 'APP_000001', 

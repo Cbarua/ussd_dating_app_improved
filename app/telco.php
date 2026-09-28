@@ -541,12 +541,16 @@ class Subscription extends Core
     private $sendURL;
     private $getStatusURL;
     private $baseURL;
+    private $listURL;
+    private $chargingInfoURL;
 
-    public function __construct($sendURL = null, $getStatusURL = null, $baseURL = null)
+    public function __construct($sendURL = null, $getStatusURL = null, $baseURL = null, $listURL = null, $chargingInfoURL = null)
     {
         $this->sendURL = $sendURL ?? (defined('app') && isset(app['sub_msg_url']) ? app['sub_msg_url'] : null);
         $this->getStatusURL = $getStatusURL ?? (defined('app') && isset(app['sub_status_url']) ? app['sub_status_url'] : null);
         $this->baseURL = $baseURL ?? (defined('app') && isset(app['sub_base_url']) ? app['sub_base_url'] : null);
+        $this->listURL = $listURL ?? (defined('app') && isset(app['sub_list_url']) ? app['sub_list_url'] : null);
+        $this->chargingInfoURL = $chargingInfoURL ?? (defined('app') && isset(app['sub_charging_info_url']) ? app['sub_charging_info_url'] : null);
     }
 
     public function RegUser($applicationId, $password, $subscriberId)
@@ -561,16 +565,6 @@ class Subscription extends Core
         $jsonObjectFields = json_encode($arrayField);
         $resp = $this->sendRequest($jsonObjectFields, $this->sendURL);
         $response = json_decode($resp, true);
-        // $statusCode = $response["statusCode"];
-        // $statusDetail = $response["statusDetail"];
-
-        // $is_dev = strpos($this->sendURL, "127.0.0.1") !== false || strpos($this->sendURL, "localhost") !== false;
-        // $subscriptionStatus = $is_dev ? "REGISTERED" : $response["subscriptionStatus"];
-
-        // if (strcmp($statusCode, 'S1000') == 0) {
-        //     return $subscriptionStatus;
-        // }
-        // return $statusDetail;
         return $response;
     }
 
@@ -601,11 +595,6 @@ class Subscription extends Core
         $resp = $this->sendRequest($jsonObjectFields, $this->getStatusURL);
         $response = json_decode($resp, true);
         return $response;
-        // $statusDetail = $response['statusDetail'];
-        // $statusCode = $response['statusCode'];
-        // $status = $response['subscriptionStatus'];
-
-        // return $status;
     }
 
     public function getBaseSize($applicationId, $password)
@@ -624,6 +613,33 @@ class Subscription extends Core
         $status = $response['baseSize'];
 
         return $status;
+    }
+
+    public function getSubscriberList($applicationId, $password, $requestPage = 1)
+    {
+        $arrayField = array(
+            "applicationId" => $applicationId,
+            "password" => $password,
+            "version" => "1.0",
+            "requestPage" => (int)$requestPage
+        );
+
+        $jsonObjectFields = json_encode($arrayField);
+        $resp = $this->sendRequest($jsonObjectFields, $this->listURL);
+        return json_decode($resp, true);
+    }
+
+    public function getSubscriberChargingInfo($applicationId, $password, array $subscriberIds)
+    {
+        $arrayField = array(
+            "applicationId" => $applicationId,
+            "password" => $password,
+            "subscriberIds" => array_values($subscriberIds)
+        );
+
+        $jsonObjectFields = json_encode($arrayField);
+        $resp = $this->sendRequest($jsonObjectFields, $this->chargingInfoURL);
+        return json_decode($resp, true);
     }
 
 }
