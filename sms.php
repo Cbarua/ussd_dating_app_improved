@@ -53,14 +53,23 @@ smslog('Platform: ' . $_ENV['PLATFORM'] .
 $user_sql = "Select username, sub_status from " . app['user_table'] . " WHERE address= '$address'";
 $user = getSQLdata($mysqli, $user_sql);
 
-if (!empty($sub_status) && $user['sub_status'] !== $sub_status) {
-    updateUserDB($mysqli, $address, ['sub_status' => $sub_status]);
+$user_sub_status = ($user && isset($user['sub_status'])) ? $user['sub_status'] : null;
+
+if (!empty($sub_status) && $user_sub_status !== $sub_status) {
+    if ($user) {
+        updateUserDB($mysqli, $address, ['sub_status' => $sub_status]);
+    } else if ($sub_status !== app['sub_unreg']) {
+        $date = date("Y-m-d");
+        $sql = "INSERT INTO " . app['user_table'] . " (address, sub_status, sub_date) VALUES ('$address', '$sub_status', '$date');";
+        executeSQL($mysqli, $sql);
+    }
 }
 
 try {
     if ($sub_status === app['sub_reg']) {
 
-        if (is_null($user['username'])) {
+        $user_username = ($user && isset($user['username'])) ? $user['username'] : null;
+        if (is_null($user_username)) {
             $message = empty($_ENV['USSD']) ? msg['username_e_no_ussd'] : msg['username_e'];
             smslog("Message\n" . $message);
             $sender->sms($message, $address);
@@ -78,7 +87,11 @@ try {
 
             if ($is_valid) {
                 $similar_usernames = getSQLdata($mysqli, "SELECT username from " . app['user_table'] . " WHERE username LIKE '$name%'"); // Using wildcard character '%'
-                $username = $name . count($similar_usernames);
+                $similar_count = 0;
+                if (is_array($similar_usernames)) {
+                    $similar_count = (isset($similar_usernames[0]) && is_array($similar_usernames[0])) ? count($similar_usernames) : 1;
+                }
+                $username = $name . $similar_count;
             } else {
                 $username = $name;
             }
@@ -93,20 +106,21 @@ try {
         }
 
         $parts = explode(' ', $content, 3);
-        $username = $parts[1];
-        $content = $parts[2];
+        $username = $parts[1] ?? '';
+        $content = $parts[2] ?? '';
         $message = empty($_ENV['USSD']) ? msg['help_chat'] : msg['help'];
 
         if (strtolower($parts[0]) === app['keyword']) {
             if (!empty($username) && !empty($content)) {
 
                 $address_sql = "Select address from " . app['user_table'] . " WHERE username= '$username'";
-                $receiver_address  = getSQLdata($mysqli, $address_sql)['address'];
+                $receiver_data = getSQLdata($mysqli, $address_sql);
+                $receiver_address  = ($receiver_data && isset($receiver_data['address'])) ? $receiver_data['address'] : null;
 
                 if (is_null($receiver_address)) {
                     $message = msg['chat_no_user'] . "\n " . msg['help_chat'];
                 } else {
-                    $message = $user['username'] . ": $content";
+                    $message = $user_username . ": $content";
                     $address = $receiver_address;
                 }
             }

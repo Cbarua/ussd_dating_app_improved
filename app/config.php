@@ -6,7 +6,7 @@ require_once __DIR__ . "/logger.php";
 $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
 $dotenv->load();
 
-# Maintenance Mode (Global 500 error switch)
+# Maintenance Mode (Global 500 error switch with CLI bypass support)
 if (isset($_ENV['APP_MAINTENANCE']) && filter_var($_ENV['APP_MAINTENANCE'], FILTER_VALIDATE_BOOLEAN)) {
     if (!defined('ALLOW_MAINTENANCE_RUN') || !ALLOW_MAINTENANCE_RUN) {
         if (php_sapi_name() === 'cli') {
@@ -39,12 +39,13 @@ $app_arr = array(
     'sub_msg_url' => $_ENV['SUB_MSG_URL'] ?: 'http://127.0.0.1:7000/subscription/send',
     'sub_base_url' => $_ENV['SUB_BASE_URL'] ?: 'http://127.0.0.1:7000/subscription/query-base',
     'sub_status_url' => $_ENV['SUB_STATUS_URL'] ?: 'http://127.0.0.1:7000/subscription/getStatus',
-    'sub_list_url' => $_ENV['SUB_LIST_URL'] ?: 'https://api.mspace.lk/subscription/getSubscriberList',
-    'sub_charging_info_url' => $_ENV['SUB_CHARGING_INFO_URL'] ?: 'https://api.mspace.lk/subscription/getSubscriberChargingInfo',
+    'sub_list_url' => (isset($_ENV['SUB_LIST_URL']) && $_ENV['SUB_LIST_URL'] !== '') ? $_ENV['SUB_LIST_URL'] : 'https://api.mspace.lk/subscription/getSubscriberList',
+    'sub_charging_info_url' => (isset($_ENV['SUB_CHARGING_INFO_URL']) && $_ENV['SUB_CHARGING_INFO_URL'] !== '') ? $_ENV['SUB_CHARGING_INFO_URL'] : 'https://api.mspace.lk/subscription/getSubscriberChargingInfo',
     'otp_request_url' => $_ENV['OTP_REQUEST_URL'] ?: '',
     'otp_verify_url' => $_ENV['OTP_VERIFY_URL'] ?: '',
 
     # App Configurations
+    'platform' => $_ENV['PLATFORM'] ?: 'ideamart',
     'reg_action' => '1',
     'version' => '1.0',
     'app_id' => $_ENV['APP_ID'] ?: 'APP_000001', 
@@ -131,9 +132,7 @@ function getSQLdata($mysqli, $sql) {
 }
 
 function updateUserDB($mysqli, $address, $data) {
-    
     $sql = "UPDATE ". app['user_table'] ." SET ";
-
     foreach ($data as $key => $value) {
         if (is_null($value)) {
             $sql .= "$key = NULL, ";
@@ -141,17 +140,13 @@ function updateUserDB($mysqli, $address, $data) {
             $sql .= "$key = '$value', ";
         }
     }
-
     $sql .= "WHERE address= '$address';";
-    
     $sql = substr_replace($sql, '', strrpos($sql, ','), 1);
     executeSQL($mysqli, $sql);
 }
 
 function updateSearchDB($mysqli, $address, $data) {
-    
     $sql = "UPDATE ". app['search_table'] ." SET ";
-
     foreach ($data as $key => $value) {
         if (is_null($value)) {
             $sql .= "$key = NULL, ";
@@ -159,9 +154,7 @@ function updateSearchDB($mysqli, $address, $data) {
             $sql .= "$key = '$value', ";
         }
     }
-
     $sql .= "WHERE address= '$address';";
-    
     $sql = substr_replace($sql, '', strrpos($sql, ','), 1);
     executeSQL($mysqli, $sql);
 }
@@ -181,9 +174,7 @@ function updateStateDB($mysqli, $address, $stage, $flow = false) {
 }
 
 function updateDashDB($mysqli, $date, $data) {
-
     $sql = "UPDATE ". app['dash_table'] ." SET ";
-
     foreach ($data as $key => $value) {
         if (is_null($value)) {
             $sql .= "$key = NULL, ";
@@ -191,9 +182,7 @@ function updateDashDB($mysqli, $date, $data) {
             $sql .= "$key = '$value', ";
         }
     }
-
     $sql .= "WHERE date= '$date';";
-    
     $sql = substr_replace($sql, '', strrpos($sql, ','), 1);
     executeSQL($mysqli, $sql);
 }
