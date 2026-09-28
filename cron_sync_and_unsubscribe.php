@@ -126,6 +126,83 @@ function normalizeSubscriberAddress($address) {
     return 'tel:' . $address;
 }
 
+class CliProgressBar {
+    private int $total;
+    private int $current = 0;
+    private float $startTime;
+    private bool $isTty;
+    private int $barWidth;
+    private float $lastRenderTime = 0;
+    private array $lastExtra = [];
+
+    public function __construct(int $total, int $barWidth = 26) {
+        $this->total = max(1, $total);
+        $this->barWidth = $barWidth;
+        $this->startTime = microtime(true);
+        $this->isTty = function_exists('posix_isatty') && @posix_isatty(STDOUT);
+    }
+
+    public function advance(int $step = 1, array $extra = []): void {
+        $this->current += $step;
+        if (!empty($extra)) {
+            $this->lastExtra = $extra;
+        }
+        $now = microtime(true);
+
+        if ($this->isTty) {
+            if ($now - $this->lastRenderTime < 0.1 && $this->current < $this->total) {
+                return;
+            }
+            $this->lastRenderTime = $now;
+            $this->renderTty($this->lastExtra);
+        } else {
+            $interval = max(50, (int)($this->total / 10));
+            if ($this->current % $interval === 0 || $this->current >= $this->total) {
+                $percent = min(100, round(($this->current / $this->total) * 100, 1));
+                $extraStr = !empty($this->lastExtra) ? " [" . implode(", ", array_map(fn($k, $v) => "$k: $v", array_keys($this->lastExtra), $this->lastExtra)) . "]" : "";
+                echo "  -> Progress: {$percent}% ({$this->current}/{$this->total}){$extraStr}\n";
+            }
+        }
+    }
+
+    public function logMessage(string $msg): void {
+        if ($this->isTty) {
+            echo "\r\033[K" . $msg . "\n";
+            $this->renderTty($this->lastExtra);
+        } else {
+            echo $msg . "\n";
+        }
+    }
+
+    private function renderTty(array $extra = []): void {
+        $percent = min(100, (int)round(($this->current / $this->total) * 100));
+        $filled = (int)round(($this->current / $this->total) * $this->barWidth);
+        $empty = max(0, $this->barWidth - $filled);
+        $bar = str_repeat('=', max(0, $filled - 1)) . ($filled > 0 ? '>' : '') . str_repeat('-', $empty);
+
+        $elapsed = max(0.001, microtime(true) - $this->startTime);
+        $rate = $this->current / $elapsed;
+        $remaining = $rate > 0 ? max(0, ($this->total - $this->current) / $rate) : 0;
+
+        $etaStr = sprintf("%02dm %02ds", floor($remaining / 60), $remaining % 60);
+        $extraParts = [];
+        foreach ($extra as $k => $v) {
+            $extraParts[] = "$k: $v";
+        }
+        $extraStr = !empty($extraParts) ? " | " . implode(" | ", $extraParts) : "";
+
+        echo sprintf("\r  [%s] %3d%% (%d/%d) ETA: %s%s", $bar, $percent, $this->current, $this->total, $etaStr, $extraStr);
+        flush();
+    }
+
+    public function finish(): void {
+        if ($this->isTty) {
+            $this->renderTty($this->lastExtra);
+            echo "\n";
+        }
+    }
+}
+
 // 1. SUBSCRIBER SYNC TASK (Ideamart 1-by-1 status verification)
 if ($doSync) {
     echo "[STEP 1] Synchronizing subscribers via Ideamart API (/subscription/getStatus)...\n";
@@ -172,6 +249,9 @@ if ($doSync) {
 
     echo "  Total candidate users matching criteria: $totalCandidates\n";
 
+    $targetCount = ($syncLimit !== null) ? min($syncLimit, $totalCandidates) : $totalCandidates;
+    $progressBar = new CliProgressBar($targetCount);
+
     $processedInThisRun = 0;
     $chunkSize = 50;
     $hasMore = true;
@@ -189,7 +269,7 @@ if ($doSync) {
 
     while ($hasMore) {
         if ($syncLimit !== null && $processedInThisRun >= $syncLimit) {
-            echo "  Reached specified limit of $syncLimit users. Stopping sync.\n";
+            $progressBar->logMessage("  Reached specified limit of $syncLimit users. Stopping sync.");
             break;
         }
 
@@ -256,7 +336,7 @@ if ($doSync) {
 
             if ($apiStatus === null) {
                 $stats['errors']++;
-                echo "    [ERR] $rawAddress - API Error: " . ($statusCode ?? 'No code') . " ($statusDetail)\n";
+                $progressBar->logMessage("    [ERR] $rawAddress - API Error: " . ($statusCode ?? 'No code') . " ($statusDetail)");
                 unsublog("Sync API Error: $rawAddress | Code: $statusCode | Detail: $statusDetail");
             } else {
                 if ($apiStatus !== $currentStatus) {
@@ -264,7 +344,7 @@ if ($doSync) {
                     $transitions[$transKey] = ($transitions[$transKey] ?? 0) + 1;
                     $stats['updated']++;
 
-                    echo "    [UPDATE] $rawAddress: $currentStatus -> $apiStatus\n";
+                    $progressBar->logMessage("    [UPDATE] $rawAddress: $currentStatus -> $apiStatus");
 
                     if (!$isDryRun) {
                         updateUserDB($mysqli, $rawAddress, [
@@ -283,12 +363,17 @@ if ($doSync) {
                 }
             }
 
+            $progressBar->advance(1, [
+                'Updated' => $stats['updated'],
+                'Unchanged' => $stats['unchanged'],
+                'Errors' => $stats['errors']
+            ]);
+
             if ($sleepMs > 0) {
                 usleep($sleepMs * 1000);
             }
 
             if ($processedInThisRun % 50 === 0) {
-                echo "    ...processed $processedInThisRun users in this run ({$stats['checked']} total)...\n";
                 $saveCheckpoint();
             }
 
@@ -299,6 +384,8 @@ if ($doSync) {
 
         $saveCheckpoint();
     }
+
+    $progressBar->finish();
 
     echo "\nSync Complete: Checked {$stats['checked']} users, Updated {$stats['updated']}, Unchanged {$stats['unchanged']}, Errors {$stats['errors']}.\n";
     if (!empty($transitions)) {
