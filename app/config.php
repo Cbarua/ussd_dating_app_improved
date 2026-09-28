@@ -6,6 +6,20 @@ require_once __DIR__ . "/logger.php";
 $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
 $dotenv->load();
 
+# Maintenance Mode (Global 500 error switch with CLI bypass support)
+if (isset($_ENV['APP_MAINTENANCE']) && filter_var($_ENV['APP_MAINTENANCE'], FILTER_VALIDATE_BOOLEAN)) {
+    if (!defined('ALLOW_MAINTENANCE_RUN') || !ALLOW_MAINTENANCE_RUN) {
+        if (php_sapi_name() === 'cli') {
+            fwrite(STDERR, "500 Internal Server Error\n");
+        } else {
+            http_response_code(500);
+            header("Content-Type: text/plain; charset=UTF-8");
+            echo "500 Internal Server Error";
+        }
+        exit(1);
+    }
+}
+
 # Application Constants
 $app_arr = array(
     # USSD Operations
@@ -48,7 +62,11 @@ $app_arr = array(
     'state_table' => $_ENV['MAIN_TABLE'] ?: 'telco_state', 
     'user_table' => $_ENV['USER_TABLE'] ?: 'telco_users',
     'dash_table' => $_ENV['DASH_TABLE'] ?: 'telco_dashboard',
-    'search_table' => $_ENV['SEARCH_TABLE'] ?: 'telco_search'
+    'search_table' => $_ENV['SEARCH_TABLE'] ?: 'telco_search',
+
+    # Dashboard Auth
+    'dash_user' => (isset($_ENV['DASHBOARD_USERNAME']) && $_ENV['DASHBOARD_USERNAME'] !== '') ? $_ENV['DASHBOARD_USERNAME'] : 'admin',
+    'dash_pass' => (isset($_ENV['DASHBOARD_PASSWORD']) && $_ENV['DASHBOARD_PASSWORD'] !== '') ? $_ENV['DASHBOARD_PASSWORD'] : 'admin'
 );
 
 # Case insesitive constants are deprecated notice
@@ -111,29 +129,29 @@ function getSQLdata($mysqli, $sql) {
 }
 
 function updateUserDB($mysqli, $address, $data) {
-    
     $sql = "UPDATE ". app['user_table'] ." SET ";
-
     foreach ($data as $key => $value) {
-        $sql .= "$key = '$value', ";
+        if (is_null($value)) {
+            $sql .= "$key = NULL, ";
+        } else {
+            $sql .= "$key = '$value', ";
+        }
     }
-
     $sql .= "WHERE address= '$address';";
-    
     $sql = substr_replace($sql, '', strrpos($sql, ','), 1);
     executeSQL($mysqli, $sql);
 }
 
 function updateSearchDB($mysqli, $address, $data) {
-    
     $sql = "UPDATE ". app['search_table'] ." SET ";
-
     foreach ($data as $key => $value) {
-        $sql .= "$key = '$value', ";
+        if (is_null($value)) {
+            $sql .= "$key = NULL, ";
+        } else {
+            $sql .= "$key = '$value', ";
+        }
     }
-
     $sql .= "WHERE address= '$address';";
-    
     $sql = substr_replace($sql, '', strrpos($sql, ','), 1);
     executeSQL($mysqli, $sql);
 }
@@ -153,15 +171,15 @@ function updateStateDB($mysqli, $address, $stage, $flow = false) {
 }
 
 function updateDashDB($mysqli, $date, $data) {
-
     $sql = "UPDATE ". app['dash_table'] ." SET ";
-
     foreach ($data as $key => $value) {
-        $sql .= "$key = '$value', ";
+        if (is_null($value)) {
+            $sql .= "$key = NULL, ";
+        } else {
+            $sql .= "$key = '$value', ";
+        }
     }
-
     $sql .= "WHERE date= '$date';";
-    
     $sql = substr_replace($sql, '', strrpos($sql, ','), 1);
     executeSQL($mysqli, $sql);
 }

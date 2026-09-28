@@ -40,6 +40,8 @@ class Core
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
         curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonStream);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 90);
         $res = curl_exec($ch);
         curl_close($ch);
         return $res;
@@ -540,11 +542,11 @@ class Subscription extends Core
     private $getStatusURL;
     private $baseURL;
 
-    public function __construct($sendURL, $getStatusURL, $baseURL)
+    public function __construct($sendURL = null, $getStatusURL = null, $baseURL = null)
     {
-        $this->sendURL = $sendURL;
-        $this->getStatusURL = $getStatusURL;
-        $this->baseURL = $baseURL;
+        $this->sendURL = $sendURL ?? (defined('app') && isset(app['sub_msg_url']) ? app['sub_msg_url'] : null);
+        $this->getStatusURL = $getStatusURL ?? (defined('app') && isset(app['sub_status_url']) ? app['sub_status_url'] : null);
+        $this->baseURL = $baseURL ?? (defined('app') && isset(app['sub_base_url']) ? app['sub_base_url'] : null);
     }
 
     public function RegUser($applicationId, $password, $subscriberId)
