@@ -637,34 +637,6 @@ class Subscription extends Core
         $resp = $this->sendRequest($jsonObjectFields, $this->chargingInfoURL);
         return json_decode($resp, true);
     }
-
-    public function getSubscriberList($applicationId, $password, $requestPage = 1)
-    {
-        $arrayField = array(
-            "applicationId" => $applicationId,
-            "password" => $password,
-            "version" => "1.0",
-            "requestPage" => (int)$requestPage
-        );
-
-        $jsonObjectFields = json_encode($arrayField);
-        $resp = $this->sendRequest($jsonObjectFields, $this->listURL);
-        return json_decode($resp, true);
-    }
-
-    public function getSubscriberChargingInfo($applicationId, $password, array $subscriberIds)
-    {
-        $arrayField = array(
-            "applicationId" => $applicationId,
-            "password" => $password,
-            "subscriberIds" => array_values($subscriberIds)
-        );
-
-        $jsonObjectFields = json_encode($arrayField);
-        $resp = $this->sendRequest($jsonObjectFields, $this->chargingInfoURL);
-        return json_decode($resp, true);
-    }
-
 }
 
 
