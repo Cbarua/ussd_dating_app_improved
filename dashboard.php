@@ -1,7 +1,10 @@
 <?php
 
 require_once __DIR__ . "/app/config.php";
+require_once __DIR__ . "/app/auth.php";
 require_once __DIR__ . "/app/telco.php";
+
+require_auth();
 
 $subscription  = new Subscription(app['sub_msg_url'], app['sub_status_url'], app['sub_base_url']);
 $active = $subscription->getBaseSize(app['app_id'], app['password']);
@@ -157,10 +160,35 @@ if (!empty($update_dashboard)) {
                 border-bottom: 0;
             }
         }
+
+        .user-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            padding: 8px 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .user-nav a {
+            color: #d32f2f;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .user-nav a:hover {
+            text-decoration: underline;
+        }
     </style>
     <title><?php echo app['app_name'] ?> Dashboard</title>
 </head>
 <body>
+    <div class="user-nav">
+        <span>Logged in as: <strong><?php echo htmlspecialchars($_SESSION['logged_in_user'] ?? 'admin'); ?></strong></span>
+        <span><a href="logout.php">[Logout]</a></span>
+    </div>
     <table>
     <caption><?php echo ucfirst(app['app_name']) ?> Dashboard</caption>
     <thead>

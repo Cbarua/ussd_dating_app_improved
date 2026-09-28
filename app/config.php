@@ -6,6 +6,18 @@ require_once __DIR__ . "/logger.php";
 $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
 $dotenv->load();
 
+# Maintenance Mode (Global 500 error switch)
+if (isset($_ENV['APP_MAINTENANCE']) && filter_var($_ENV['APP_MAINTENANCE'], FILTER_VALIDATE_BOOLEAN)) {
+    if (php_sapi_name() === 'cli') {
+        fwrite(STDERR, "500 Internal Server Error\n");
+    } else {
+        http_response_code(500);
+        header("Content-Type: text/plain; charset=UTF-8");
+        echo "500 Internal Server Error";
+    }
+    exit(1);
+}
+
 # Application Constants
 $app_arr = array(
     # USSD Operations
@@ -25,6 +37,8 @@ $app_arr = array(
     'sub_msg_url' => $_ENV['SUB_MSG_URL'] ?: 'http://127.0.0.1:7000/subscription/send',
     'sub_base_url' => $_ENV['SUB_BASE_URL'] ?: 'http://127.0.0.1:7000/subscription/query-base',
     'sub_status_url' => $_ENV['SUB_STATUS_URL'] ?: 'http://127.0.0.1:7000/subscription/getStatus',
+    'sub_list_url' => $_ENV['SUB_LIST_URL'] ?: 'https://api.mspace.lk/subscription/getSubscriberList',
+    'sub_charging_info_url' => $_ENV['SUB_CHARGING_INFO_URL'] ?: 'https://api.mspace.lk/subscription/getSubscriberChargingInfo',
     'otp_request_url' => $_ENV['OTP_REQUEST_URL'] ?: '',
     'otp_verify_url' => $_ENV['OTP_VERIFY_URL'] ?: '',
 
@@ -48,7 +62,11 @@ $app_arr = array(
     'state_table' => $_ENV['MAIN_TABLE'] ?: 'telco_state', 
     'user_table' => $_ENV['USER_TABLE'] ?: 'telco_users',
     'dash_table' => $_ENV['DASH_TABLE'] ?: 'telco_dashboard',
-    'search_table' => $_ENV['SEARCH_TABLE'] ?: 'telco_search'
+    'search_table' => $_ENV['SEARCH_TABLE'] ?: 'telco_search',
+
+    # Dashboard Auth
+    'dash_user' => (isset($_ENV['DASHBOARD_USERNAME']) && $_ENV['DASHBOARD_USERNAME'] !== '') ? $_ENV['DASHBOARD_USERNAME'] : 'admin',
+    'dash_pass' => (isset($_ENV['DASHBOARD_PASSWORD']) && $_ENV['DASHBOARD_PASSWORD'] !== '') ? $_ENV['DASHBOARD_PASSWORD'] : 'admin'
 );
 
 # Case insesitive constants are deprecated notice
