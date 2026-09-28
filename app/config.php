@@ -8,14 +8,16 @@ $dotenv->load();
 
 # Maintenance Mode (Global 500 error switch)
 if (isset($_ENV['APP_MAINTENANCE']) && filter_var($_ENV['APP_MAINTENANCE'], FILTER_VALIDATE_BOOLEAN)) {
-    if (php_sapi_name() === 'cli') {
-        fwrite(STDERR, "500 Internal Server Error\n");
-    } else {
-        http_response_code(500);
-        header("Content-Type: text/plain; charset=UTF-8");
-        echo "500 Internal Server Error";
+    if (!defined('ALLOW_MAINTENANCE_RUN') || !ALLOW_MAINTENANCE_RUN) {
+        if (php_sapi_name() === 'cli') {
+            fwrite(STDERR, "500 Internal Server Error\n");
+        } else {
+            http_response_code(500);
+            header("Content-Type: text/plain; charset=UTF-8");
+            echo "500 Internal Server Error";
+        }
+        exit(1);
     }
-    exit(1);
 }
 
 # Application Constants
