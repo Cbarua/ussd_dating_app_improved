@@ -18,6 +18,8 @@
  *   --help, -h        Show this help message
  */
 
+define('ALLOW_MAINTENANCE_RUN', true);
+
 require_once __DIR__ . "/app/config.php";
 require_once __DIR__ . "/app/telco.php";
 require_once __DIR__ . "/app/logger.php";
@@ -68,12 +70,21 @@ if (isset($options['max-pages']) && is_numeric($options['max-pages']) && (int)$o
     $maxPages = (int)$options['max-pages'];
 }
 
+$isMaintenanceActive = isset($_ENV['APP_MAINTENANCE']) && filter_var($_ENV['APP_MAINTENANCE'], FILTER_VALIDATE_BOOLEAN);
+
 echo "=====================================================\n";
 echo "mSpace Subscriber Sync & Daily Unsubscribe Manager\n";
 echo "Date: " . date('Y-m-d H:i:s') . "\n";
 echo "Mode: " . ($isDryRun ? "DRY RUN (Simulation)" : "LIVE EXECUTION") . "\n";
+if ($isMaintenanceActive) {
+    echo "Maintenance: ACTIVE (CLI Bypass)\n";
+}
 echo "Tasks: " . ($doSync ? "[Sync" . ($maxPages ? " (Max $maxPages pages)" : "") . "] " : "") . ($doUnsub ? "[Unsubscribe ($unsubCount users)]" : "") . "\n";
 echo "=====================================================\n\n";
+
+if ($isMaintenanceActive) {
+    unsublog("Notice: Script running under ACTIVE Maintenance Mode (CLI Bypass)");
+}
 
 $subscription = new Subscription(
     app['sub_msg_url'],
