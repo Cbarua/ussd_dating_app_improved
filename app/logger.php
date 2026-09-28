@@ -95,4 +95,19 @@ function otplog($data, $isDate = true){
     fclose($file);
 }
 
+function unsublog($data, $isDate = true){
+    $root = dirname(__DIR__);
+    $logfile = $root . '/log/unsubscribe.log';
+    $date = $isDate ? "[".date('D M j G:i:s T Y')."]\n" : "";
+    $method = 'a';
+
+    $data = var_dump_ret($data);
+
+    $file = fopen($logfile, $method);
+    if ($file) {
+        fwrite($file, $date . $data . "\n\n");
+        fclose($file);
+    }
+}
+
 ?>
