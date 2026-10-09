@@ -1,5 +1,8 @@
 <?php
 
+# Subscription callbacks still run in maintenance mode (app/config.php kill-switch)
+define('ALLOW_MAINTENANCE_RUN', true);
+
 require_once __DIR__ . "/app/logger.php";
 require_once __DIR__ . "/app/config.php";
 
@@ -56,10 +59,13 @@ if (isset(
                 $username = $user_username;
             }
 
-            $sender = new SMSSender(app['sms_url'], app['app_id'], app['password']);
-            $message = msg['username_info'] . $username . "\n" . msg['help_chat'];
-            smslog("Message\n" . $message);
-            $sender->sms($message, $address);
+            # No username SMS while the app is closed
+            if (!filter_var($_ENV['APP_MAINTENANCE'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+                $sender = new SMSSender(app['sms_url'], app['app_id'], app['password']);
+                $message = msg['username_info'] . $username . "\n" . msg['help_chat'];
+                smslog("Message\n" . $message);
+                $sender->sms($message, $address);
+            }
         }
     }
 }
