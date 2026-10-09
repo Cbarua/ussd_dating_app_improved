@@ -535,11 +535,6 @@ if ($doSync) {
                         }
                     } else {
                         $stats['unchanged']++;
-                        if (!$isDryRun && $user['sub_date'] !== $today) {
-                            updateUserDB($mysqli, $rawAddress, [
-                                'sub_date' => $today
-                            ]);
-                        }
                     }
                 }
 
